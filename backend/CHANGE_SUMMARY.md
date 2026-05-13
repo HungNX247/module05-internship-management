@@ -128,6 +128,14 @@ Tài khoản mặc định:
 - `mentor@gmail.com` / `123456` -> `MENTOR`
 - `intern@gmail.com` / `123456` -> `INTERN`
 
+## 11) Postman & Runtime Troubleshooting
+
+- Lỗi `ECONNREFUSED 127.0.0.1:8080`: backend chưa chạy hoặc đã crash.
+- `POST /api/auth/login` là endpoint đúng (không dùng GET).
+- Lỗi startup đã gặp: `Access denied for user 'root'@'localhost'`.
+- Cần chỉnh đúng DB credentials trong:
+  - `src/main/resources/application.yml`
+
 
 ## 12) Compile Verification
 
@@ -138,4 +146,3 @@ Tài khoản mặc định:
 ```
 
 Kết quả: pass.
-
