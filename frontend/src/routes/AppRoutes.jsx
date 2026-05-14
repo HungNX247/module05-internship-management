@@ -5,6 +5,7 @@ import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import HrDashboardPage from "../pages/hr/HrDashboardPage";
 import MentorDashboardPage from "../pages/mentor/MentorDashboardPage";
 import InternDashboardPage from "../pages/intern/InternDashboardPage";
+import ForbiddenPage from "../pages/ForbiddenPage";
 
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
@@ -15,6 +16,7 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/login" replace />} />
 
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/403" element={<ForbiddenPage />} />
 
       <Route
         path="/admin/dashboard"
