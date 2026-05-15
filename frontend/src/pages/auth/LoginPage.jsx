@@ -71,9 +71,15 @@ function LoginPage() {
         localStorage.removeItem("rememberedEmail");
       }
 
-      saveToken(response.data.token);
-      saveCurrentUser(response.data.user);
-      navigate(getDashboardPathByRole(response.data.user.role), { replace: true });
+      const loginData = response.data;
+      if (!loginData || !loginData.token || !loginData.user) {
+        setApiError("Dữ liệu phản hồi từ server không hợp lệ (thiếu Token hoặc User).");
+        return;
+      }
+
+      saveToken(loginData.token);
+      saveCurrentUser(loginData.user);
+      navigate(getDashboardPathByRole(loginData.user.role), { replace: true });
     } catch (error) {
       setApiError(error.response?.data?.message || "Không thể đăng nhập. Vui lòng thử lại.");
     } finally {
