@@ -1,21 +1,51 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { getCurrentRole } from "../../services/tokenService";
+
+const MENU_ICONS = {
+  Dashboard: "▣",
+  "User Management": "◎",
+  Interns: "◇",
+};
+
+const menuByRole = {
+  ADMIN: [
+    { label: "Dashboard", path: "/admin/dashboard" },
+    { label: "User Management", path: "/admin/users" },
+  ],
+  HR: [
+    { label: "Dashboard", path: "/hr/dashboard" },
+    { label: "Interns", path: "/hr/interns" },
+  ],
+  MENTOR: [{ label: "Dashboard", path: "/mentor/dashboard" }],
+  INTERN: [{ label: "Dashboard", path: "/intern/dashboard" }],
+};
 
 function Sidebar() {
+  const role = getCurrentRole();
+  const menus = menuByRole[role] || [];
+
   return (
-    <aside
-      style={{
-        width: "240px",
-        minHeight: "calc(100vh - 60px)",
-        borderRight: "1px solid #ddd",
-        padding: "20px",
-        background: "#f8f9fa",
-      }}
-    >
-      <nav style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        <Link to="/admin/dashboard">Admin Dashboard</Link>
-        <Link to="/hr/dashboard">HR Dashboard</Link>
-        <Link to="/mentor/dashboard">Mentor Dashboard</Link>
-        <Link to="/intern/dashboard">Intern Dashboard</Link>
+    <aside className="app-sidebar">
+      <div className="app-sidebar__brand">
+        <h3 className="app-sidebar__brand-title">IMS</h3>
+        <p className="app-sidebar__brand-desc">Internship Management</p>
+      </div>
+
+      <nav className="app-sidebar__nav">
+        {menus.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `app-sidebar__link${isActive ? " app-sidebar__link--active" : ""}`
+            }
+          >
+            <span className="app-sidebar__icon">
+              {MENU_ICONS[item.label] || "•"}
+            </span>
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
     </aside>
   );
