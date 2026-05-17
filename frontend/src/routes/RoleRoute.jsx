@@ -1,6 +1,17 @@
+import { Navigate } from "react-router-dom";
+import { getCurrentRole } from "../services/tokenService";
+
 function RoleRoute({ children, allowedRoles }) {
-  // TODO Sprint 1:
-  // Kiểm tra role của user hiện tại có nằm trong allowedRoles không.
+  const currentRole = getCurrentRole();
+
+  if (!currentRole) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!allowedRoles.includes(currentRole)) {
+    return <Navigate to="/403" replace />;
+  }
+
   return children;
 }
 

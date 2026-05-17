@@ -1,6 +1,11 @@
+import { Navigate } from "react-router-dom";
+import { isAuthenticated } from "../services/tokenService";
+
 function PrivateRoute({ children }) {
-  // TODO Sprint 1:
-  // Kiểm tra token/session trước khi cho vào trang private.
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+
   return children;
 }
 
