@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -111,6 +113,8 @@ public class UserAdminService {
     }
 
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
+        User currentUser = getCurrentUser();
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -122,8 +126,15 @@ public class UserAdminService {
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
-        user.setRole(role);
-        user.setStatus(request.getStatus());
+
+        if (!currentUser.getId().equals(id)) {
+            user.setRole(role);
+            user.setStatus(request.getStatus());
+        } else {
+            // Nếu là chính mình, giữ nguyên role và status cũ
+            user.setRole(currentUser.getRole());
+            user.setStatus(currentUser.getStatus());
+        }
 
         User savedUser = userRepository.save(user);
         return toResponse(savedUser);
@@ -140,6 +151,11 @@ public class UserAdminService {
     }
 
     public UserResponse updateStatus(Long id, UserStatusRequest request) {
+        User currentUser = getCurrentUser();
+        if (currentUser.getId().equals(id)) {
+            throw new IllegalArgumentException("Cannot lock/unlock your own account");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -147,5 +163,12 @@ public class UserAdminService {
 
         User savedUser = userRepository.save(user);
         return toResponse(savedUser);
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Current user not found"));
     }
 }
