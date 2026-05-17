@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-:root {
+.auth-page {
   --primary-color: #5551ff;
   --primary-hover: #4541e6;
   --bg-gradient: linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #3b82f6 100%);
@@ -10,10 +10,14 @@
   --border-color: #e5e7eb;
 }
 
-* {
+.auth-page,
+.auth-page * {
+  box-sizing: border-box;
+}
+
+.auth-page * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 .auth-page {
@@ -23,6 +27,15 @@
   background: var(--bg-gradient);
   position: relative;
   overflow: hidden;
+}
+
+.auth-page .form-input.form-input-error {
+  border-color: #ef4444;
+}
+
+.auth-page .form-input.form-input-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.15);
 }
 
 /* background */
