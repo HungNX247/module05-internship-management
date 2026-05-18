@@ -6,7 +6,6 @@ function MainLayout({ children }) {
   return (
     <div>
       <Header />
-
       <div style={{ display: "flex" }}>
         <Sidebar />
         <ContentWrapper>{children}</ContentWrapper>

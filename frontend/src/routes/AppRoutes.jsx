@@ -5,6 +5,8 @@ import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import HrDashboardPage from "../pages/hr/HrDashboardPage";
 import MentorDashboardPage from "../pages/mentor/MentorDashboardPage";
 import InternDashboardPage from "../pages/intern/InternDashboardPage";
+import UserListPage from "../pages/admin/users/UserListPage";
+import UserFormPage from "../pages/admin/users/UserFormPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 
 import PrivateRoute from "./PrivateRoute";
@@ -24,6 +26,39 @@ function AppRoutes() {
           <PrivateRoute>
             <RoleRoute allowedRoles={["ADMIN"]}>
               <AdminDashboardPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN"]}>
+              <UserListPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users/create"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN"]}>
+              <UserFormPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users/:id/edit"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN"]}>
+              <UserFormPage />
             </RoleRoute>
           </PrivateRoute>
         }

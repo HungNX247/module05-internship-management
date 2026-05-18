@@ -26,7 +26,7 @@ export function getCurrentUser() {
 
   try {
     return JSON.parse(rawUser);
-  } catch (error) {
+  } catch {
     removeCurrentUser();
     return null;
   }

@@ -12,7 +12,7 @@ function Button({
   return (
     <button
       type={type}
-      className={`btn btn-${variant} ${className}`}
+      className={`btn btn-${variant} ${className}`.trim()}
       onClick={onClick}
       disabled={disabled}
       {...props}
