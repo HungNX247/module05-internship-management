@@ -7,6 +7,7 @@ function Button({
   onClick,
   disabled = false,
   className = "",
+  ...props
 }) {
   return (
     <button
@@ -14,6 +15,7 @@ function Button({
       className={`btn btn-${variant} ${className}`.trim()}
       onClick={onClick}
       disabled={disabled}
+      {...props}
     >
       {children}
     </button>

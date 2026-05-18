@@ -38,6 +38,14 @@
   --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
 
   --transition: 0.2s ease;
+
+  /* Aliases used by Nguyệt's auth/dashboard styles */
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --background-color: var(--color-bg);
+  --text-main: var(--color-text);
+  --text-muted: var(--color-text-muted);
+  --border-color: var(--color-border);
 }
 
 * {
@@ -55,6 +63,7 @@ body {
 a {
   color: var(--color-primary);
   text-decoration: none;
+  transition: color 0.2s;
 }
 
 a:hover {

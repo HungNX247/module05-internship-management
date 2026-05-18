@@ -4,9 +4,9 @@ import ContentWrapper from "../components/layout/ContentWrapper";
 
 function MainLayout({ children }) {
   return (
-    <div className="app-shell">
+    <div>
       <Header />
-      <div className="app-body">
+      <div style={{ display: "flex" }}>
         <Sidebar />
         <ContentWrapper>{children}</ContentWrapper>
       </div>

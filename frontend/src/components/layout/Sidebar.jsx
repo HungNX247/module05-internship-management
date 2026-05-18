@@ -1,52 +1,93 @@
-import { NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getCurrentRole } from "../../services/tokenService";
-
-const MENU_ICONS = {
-  Dashboard: "▣",
-  "User Management": "◎",
-  Interns: "◇",
-};
-
-const menuByRole = {
-  ADMIN: [
-    { label: "Dashboard", path: "/admin/dashboard" },
-    { label: "User Management", path: "/admin/users" },
-  ],
-  HR: [
-    { label: "Dashboard", path: "/hr/dashboard" },
-    { label: "Interns", path: "/hr/interns" },
-  ],
-  MENTOR: [{ label: "Dashboard", path: "/mentor/dashboard" }],
-  INTERN: [{ label: "Dashboard", path: "/intern/dashboard" }],
-};
 
 function Sidebar() {
   const role = getCurrentRole();
-  const menus = menuByRole[role] || [];
+  const location = useLocation();
+
+  const menuItems = {
+    ADMIN: [
+      { path: "/admin/dashboard", label: "Admin Dashboard", icon: "📊" },
+      { path: "/admin/users", label: "User Management", icon: "👥" },
+      { path: "/admin/logs", label: "System Logs", icon: "📋" },
+      { path: "/admin/settings", label: "Settings", icon: "⚙️" },
+    ],
+    HR: [
+      { path: "/hr/dashboard", label: "HR Dashboard", icon: "🏢" },
+      { path: "/hr/interns", label: "Interns", icon: "👨‍🎓" },
+      { path: "/hr/vacancies", label: "Vacancies", icon: "📋" },
+      { path: "/hr/reports", label: "Reports", icon: "📈" },
+    ],
+    MENTOR: [
+      { path: "/mentor/dashboard", label: "Mentor Dashboard", icon: "👨‍🏫" },
+      { path: "/mentor/interns", label: "My Interns", icon: "👥" },
+      { path: "/mentor/evaluations", label: "Evaluations", icon: "📝" },
+    ],
+    INTERN: [
+      { path: "/intern/dashboard", label: "Intern Dashboard", icon: "🎓" },
+      { path: "/intern/tasks", label: "My Tasks", icon: "✅" },
+      { path: "/intern/reports", label: "Weekly Reports", icon: "📄" },
+    ],
+  };
+
+  const currentMenu = menuItems[role] || [];
 
   return (
-    <aside className="app-sidebar">
-      <div className="app-sidebar__brand">
-        <h3 className="app-sidebar__brand-title">IMS</h3>
-        <p className="app-sidebar__brand-desc">Internship Management</p>
-      </div>
-
-      <nav className="app-sidebar__nav">
-        {menus.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `app-sidebar__link${isActive ? " app-sidebar__link--active" : ""}`
-            }
-          >
-            <span className="app-sidebar__icon">
-              {MENU_ICONS[item.label] || "•"}
-            </span>
-            {item.label}
-          </NavLink>
-        ))}
+    <aside
+      style={{
+        width: "260px",
+        minHeight: "calc(100vh - 60px)",
+        background: "#ffffff",
+        borderRight: "1px solid #e2e8f0",
+        padding: "1.5rem 1rem",
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "4px 0 6px -1px rgb(0 0 0 / 0.05)",
+      }}
+    >
+      <nav style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        {currentMenu.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                padding: "0.75rem 1rem",
+                borderRadius: "0.5rem",
+                textDecoration: "none",
+                color: isActive ? "#4f46e5" : "#64748b",
+                background: isActive ? "#f5f3ff" : "transparent",
+                fontWeight: isActive ? "600" : "500",
+                fontSize: "0.9375rem",
+                transition: "all 0.2s",
+              }}
+              onMouseOver={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = "#f8fafc";
+                  e.currentTarget.style.color = "#1e293b";
+                }
+              }}
+              onMouseOut={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "#64748b";
+                }
+              }}
+            >
+              <span style={{ fontSize: "1.25rem" }}>{item.icon}</span>
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
+      
+      <div style={{ marginTop: "auto", padding: "1rem", borderTop: "1px solid #e2e8f0", fontSize: "0.875rem", color: "#94a3b8" }}>
+        System v1.0.4
+      </div>
     </aside>
   );
 }

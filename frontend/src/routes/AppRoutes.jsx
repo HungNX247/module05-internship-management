@@ -7,7 +7,7 @@ import MentorDashboardPage from "../pages/mentor/MentorDashboardPage";
 import InternDashboardPage from "../pages/intern/InternDashboardPage";
 import UserListPage from "../pages/admin/users/UserListPage";
 import UserFormPage from "../pages/admin/users/UserFormPage";
-import ForbiddenPage from "../pages/errors/ForbiddenPage";
+import ForbiddenPage from "../pages/ForbiddenPage";
 
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
