@@ -1,0 +1,43 @@
+package com.codegym.internship.intern.dto;
+
+import com.codegym.internship.intern.entity.InternProfile;
+import com.codegym.internship.intern.entity.InternProfileStatus;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class InternProfileResponse {
+
+    private Long id;
+    private Long userId;
+    private String fullName;
+    private String email;
+    private String phone;
+    private String school;
+    private String major;
+    private String academicYear;
+    private BigDecimal gpa;
+    private InternProfileStatus status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public static InternProfileResponse fromEntity(InternProfile profile) {
+        return new InternProfileResponse(
+                profile.getId(),
+                profile.getUser().getId(),
+                profile.getFullName(),
+                profile.getEmail(),
+                profile.getPhone(),
+                profile.getSchool(),
+                profile.getMajor(),
+                profile.getAcademicYear(),
+                profile.getGpa(),
+                profile.getStatus(),
+                profile.getCreatedAt(),
+                profile.getUpdatedAt()
+        );
+    }
+}
