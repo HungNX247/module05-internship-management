@@ -8,7 +8,9 @@ import { internApi } from "../../../api/internApi";
 import {
   filterMockInterns,
   isHrInternMockEnabled,
+  throwMockApiErrorIfConfigured,
 } from "../../../mocks/hrInternMock";
+import { getApiErrorMessage } from "../../../utils/apiErrorMessage";
 import MainLayout from "../../../layouts/MainLayout";
 import "../../../styles/hr-intern.css";
 
@@ -35,6 +37,8 @@ function HrInternListPage() {
       setLoading(true);
       setErrorMessage("");
 
+      throwMockApiErrorIfConfigured();
+
       const params = {
         page: nextPage,
         size,
@@ -48,6 +52,8 @@ function HrInternListPage() {
         : await internApi.getInterns(params);
 
       if (!response.success) {
+        setInterns([]);
+        setTotalPages(0);
         setErrorMessage(response.message || "Không tải được danh sách intern");
         return;
       }
@@ -58,9 +64,13 @@ function HrInternListPage() {
       setPage(data.page ?? nextPage);
       setTotalPages(data.totalPages ?? data.totalElements ?? 0);
     } catch (error) {
+      setInterns([]);
+      setTotalPages(0);
       setErrorMessage(
-        error.response?.data?.message ||
+        getApiErrorMessage(
+          error,
           "Không tải được danh sách intern. Vui lòng thử lại."
+        )
       );
     } finally {
       setLoading(false);
@@ -135,10 +145,10 @@ function HrInternListPage() {
           <HrInternTable interns={interns} onViewDetail={handleViewDetail} />
         )}
 
-        {!loading && (
+        {!loading && interns.length > 0 && totalPages > 0 && (
           <Pagination
             page={page + 1}
-            totalPages={totalPages || 1}
+            totalPages={totalPages}
             onPageChange={(nextPage) => loadInterns(nextPage - 1)}
           />
         )}

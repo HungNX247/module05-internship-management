@@ -84,7 +84,8 @@ export function filterMockInterns({ school, major, status, page = 0, size = 10 }
   }
 
   const totalItems = items.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / size));
+  const totalPages =
+    totalItems === 0 ? 0 : Math.max(1, Math.ceil(totalItems / size));
   const start = page * size;
   const paged = items.slice(start, start + size);
 
@@ -124,3 +125,23 @@ export function getMockDocumentsByInternId(internId) {
 
 export const isHrInternMockEnabled =
   import.meta.env.VITE_HR_INTERN_MOCK === "true";
+
+/** UI-011: VITE_HR_INTERN_MOCK_ERROR=401|403|500 để test message lỗi */
+export function throwMockApiErrorIfConfigured() {
+  const code = import.meta.env.VITE_HR_INTERN_MOCK_ERROR;
+  if (!code || !isHrInternMockEnabled) return;
+
+  const status = Number(code);
+  const messages = {
+    401: "Unauthorized — phiên đăng nhập không hợp lệ (mock test)",
+    403: "Forbidden — không có quyền HR (mock test)",
+    500: "Internal Server Error — lỗi server (mock test)",
+  };
+
+  const error = new Error(messages[status] || "Mock API error");
+  error.response = {
+    status,
+    data: { message: messages[status] || "Mock API error" },
+  };
+  throw error;
+}

@@ -9,7 +9,9 @@ import {
   getMockDocumentsByInternId,
   getMockInternById,
   isHrInternMockEnabled,
+  throwMockApiErrorIfConfigured,
 } from "../../../mocks/hrInternMock";
+import { getApiErrorMessage } from "../../../utils/apiErrorMessage";
 import MainLayout from "../../../layouts/MainLayout";
 import "../../../styles/hr-intern.css";
 
@@ -32,6 +34,8 @@ function HrInternDetailPage() {
     try {
       setLoading(true);
       setErrorMessage("");
+
+      throwMockApiErrorIfConfigured();
 
       const [profileResponse, documentResponse] = isHrInternMockEnabled
         ? [getMockInternById(id), getMockDocumentsByInternId(id)]
@@ -60,9 +64,13 @@ function HrInternDetailPage() {
         setDocuments([]);
       }
     } catch (error) {
+      setIntern(null);
+      setDocuments([]);
       setErrorMessage(
-        error.response?.data?.message ||
+        getApiErrorMessage(
+          error,
           "Không tải được chi tiết hồ sơ. Vui lòng thử lại."
+        )
       );
     } finally {
       setLoading(false);
