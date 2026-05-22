@@ -5,6 +5,11 @@ import { Button } from "../../../components/common";
 import DocumentList from "../../../components/intern/DocumentList";
 import { internApi } from "../../../api/internApi";
 import { documentApi } from "../../../api/documentApi";
+import {
+  getMockDocumentsByInternId,
+  getMockInternById,
+  isHrInternMockEnabled,
+} from "../../../mocks/hrInternMock";
 import MainLayout from "../../../layouts/MainLayout";
 import "../../../styles/hr-intern.css";
 
@@ -28,10 +33,12 @@ function HrInternDetailPage() {
       setLoading(true);
       setErrorMessage("");
 
-      const [profileResponse, documentResponse] = await Promise.all([
-        internApi.getInternById(id),
-        documentApi.getDocumentsByInternId(id),
-      ]);
+      const [profileResponse, documentResponse] = isHrInternMockEnabled
+        ? [getMockInternById(id), getMockDocumentsByInternId(id)]
+        : await Promise.all([
+            internApi.getInternById(id),
+            documentApi.getDocumentsByInternId(id),
+          ]);
 
       if (!profileResponse.success) {
         setErrorMessage(

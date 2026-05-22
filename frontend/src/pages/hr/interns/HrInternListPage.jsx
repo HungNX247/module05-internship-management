@@ -5,6 +5,10 @@ import { Pagination } from "../../../components/common";
 import HrInternFilter from "../../../components/intern/HrInternFilter";
 import HrInternTable from "../../../components/intern/HrInternTable";
 import { internApi } from "../../../api/internApi";
+import {
+  filterMockInterns,
+  isHrInternMockEnabled,
+} from "../../../mocks/hrInternMock";
 import MainLayout from "../../../layouts/MainLayout";
 import "../../../styles/hr-intern.css";
 
@@ -31,13 +35,17 @@ function HrInternListPage() {
       setLoading(true);
       setErrorMessage("");
 
-      const response = await internApi.getInterns({
+      const params = {
         page: nextPage,
         size,
         school: filters.school || undefined,
         major: filters.major || undefined,
         status: filters.status || undefined,
-      });
+      };
+
+      const response = isHrInternMockEnabled
+        ? filterMockInterns(params)
+        : await internApi.getInterns(params);
 
       if (!response.success) {
         setErrorMessage(response.message || "Không tải được danh sách intern");
@@ -46,9 +54,9 @@ function HrInternListPage() {
 
       const data = response.data || {};
 
-      setInterns(data.items || []);
+      setInterns(data.items || data.content || []);
       setPage(data.page ?? nextPage);
-      setTotalPages(data.totalPages || 0);
+      setTotalPages(data.totalPages ?? data.totalElements ?? 0);
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
@@ -95,6 +103,13 @@ function HrInternListPage() {
             </p>
           </div>
         </div>
+
+        {isHrInternMockEnabled && (
+          <div className="alert alert--success">
+            Đang dùng dữ liệu mock (VITE_HR_INTERN_MOCK=true). Tắt khi tích hợp API
+            thật.
+          </div>
+        )}
 
         {errorMessage && (
           <div className="alert alert--error">{errorMessage}</div>
