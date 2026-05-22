@@ -9,18 +9,18 @@
 
 | Test ID | Nội dung | Expected | Pass? |
 |---------|----------|----------|-------|
-| UI-001 | HR login → `/hr/interns` | Màn danh sách hiển thị, không 404 | |
-| UI-002 | Load danh sách | Bảng hoặc empty state | |
-| UI-003 | Filter school | Query `school` đúng | |
-| UI-004 | Filter major | Query `major` đúng | |
-| UI-005 | Filter status | Query `status` đúng | |
-| UI-006 | Reset filter | Filter rỗng, load page 0 | |
-| UI-007 | Xem chi tiết | Navigate `/hr/interns/{id}` | |
-| UI-008 | Chi tiết intern | Đủ thông tin hồ sơ | |
-| UI-009 | Danh sách tài liệu | Documents hoặc empty state | |
-| UI-010 | Không có data | Empty state, layout OK | |
-| UI-011 | API 401/403/500 | Message lỗi rõ | |
-| UI-012 | Responsive | Layout không vỡ nặng | |
+| UI-001 | HR login → `/hr/interns` | Màn danh sách hiển thị, không 404 | Pass (mock auth) |
+| UI-002 | Load danh sách | Bảng hoặc empty state | Pass (3 mock rows) |
+| UI-003 | Filter school | Query `school` đúng | Pass ("Công nghiệp" → 2 rows) |
+| UI-004 | Filter major | Query `major` đúng | Chưa test |
+| UI-005 | Filter status | Query `status` đúng | Chưa test |
+| UI-006 | Reset filter | Filter rỗng, load page 0 | Chưa test |
+| UI-007 | Xem chi tiết | Navigate `/hr/interns/{id}` | Pass → `/hr/interns/1` |
+| UI-008 | Chi tiết intern | Đủ thông tin hồ sơ | Pass |
+| UI-009 | Danh sách tài liệu | Documents hoặc empty state | Pass (2 files intern #1) |
+| UI-010 | Không có data | Empty state, layout OK | Chưa test |
+| UI-011 | API 401/403/500 | Message lỗi rõ | Chưa test (dùng mock) |
+| UI-012 | Responsive | Layout không vỡ nặng | Chưa test |
 
 ## Ghi chú khi test
 
