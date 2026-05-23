@@ -52,7 +52,7 @@ export function ensureDevHrAuthForMock() {
   }
 
   const user = getCurrentUser();
-  if (isAuthenticated() && user?.role === "HR") {
+  if (isAuthenticated() && user?.role) {
     return;
   }
 

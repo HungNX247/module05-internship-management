@@ -40,9 +40,9 @@ function HrInternDetailPage() {
       const [profileResponse, documentResponse] = isHrInternMockEnabled
         ? [getMockInternById(id), getMockDocumentsByInternId(id)]
         : await Promise.all([
-            internApi.getInternById(id),
-            documentApi.getDocumentsByInternId(id),
-          ]);
+          internApi.getInternById(id),
+          documentApi.getDocumentsByInternId(id),
+        ]);
 
       if (!profileResponse.success) {
         setErrorMessage(
@@ -79,7 +79,6 @@ function HrInternDetailPage() {
 
   useEffect(() => {
     loadDetail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   return (

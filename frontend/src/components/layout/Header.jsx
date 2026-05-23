@@ -9,7 +9,7 @@ function Header() {
   async function handleLogout() {
     try {
       await authApi.logout();
-    } catch (error) {
+    } catch {
     } finally {
       clearAuthData();
       navigate("/login", { replace: true });
