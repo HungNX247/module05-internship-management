@@ -45,6 +45,26 @@ export function isAuthenticated() {
   return Boolean(getToken());
 }
 
+/** Chỉ dùng khi VITE_HR_INTERN_MOCK=true — test UI HR không cần backend auth */
+export function ensureDevHrAuthForMock() {
+  if (import.meta.env.VITE_HR_INTERN_MOCK !== "true") {
+    return;
+  }
+
+  const user = getCurrentUser();
+  if (isAuthenticated() && user?.role === "HR") {
+    return;
+  }
+
+  saveToken("mock-dev-hr-token");
+  saveCurrentUser({
+    id: 1,
+    fullName: "HR Test User",
+    email: "hr@gmail.com",
+    role: "HR",
+  });
+}
+
 export function getCurrentRole() {
   const user = getCurrentUser();
   return user?.role || null;

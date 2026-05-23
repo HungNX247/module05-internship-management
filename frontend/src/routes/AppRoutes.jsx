@@ -7,6 +7,8 @@ import MentorDashboardPage from "../pages/mentor/MentorDashboardPage";
 import InternDashboardPage from "../pages/intern/InternDashboardPage";
 import UserListPage from "../pages/admin/users/UserListPage";
 import UserFormPage from "../pages/admin/users/UserFormPage";
+import HrInternListPage from "../pages/hr/interns/HrInternListPage";
+import HrInternDetailPage from "../pages/hr/interns/HrInternDetailPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 
 import PrivateRoute from "./PrivateRoute";
@@ -70,6 +72,28 @@ function AppRoutes() {
           <PrivateRoute>
             <RoleRoute allowedRoles={["HR"]}>
               <HrDashboardPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/interns"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["HR"]}>
+              <HrInternListPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/interns/:id"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["HR"]}>
+              <HrInternDetailPage />
             </RoleRoute>
           </PrivateRoute>
         }

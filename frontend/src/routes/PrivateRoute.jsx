@@ -1,7 +1,12 @@
 import { Navigate } from "react-router-dom";
-import { isAuthenticated } from "../services/tokenService";
+import {
+  ensureDevHrAuthForMock,
+  isAuthenticated,
+} from "../services/tokenService";
 
 function PrivateRoute({ children }) {
+  ensureDevHrAuthForMock();
+
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
