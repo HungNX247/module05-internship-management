@@ -9,12 +9,21 @@ import com.codegym.internship.intern.repository.InternProfileRepository;
 import com.codegym.internship.user.entity.User;
 import com.codegym.internship.user.enums.Role;
 import com.codegym.internship.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+//import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import com.codegym.internship.intern.dto.InternProfilePageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+//sửa import jakarta.transaction.Transactional; thành import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -117,4 +126,55 @@ public class InternProfileService {
     private boolean isAdmin(User user) {
         return user.getRole().getCode() == Role.ADMIN;
     }
+
+    @Transactional(readOnly = true)
+    public InternProfilePageResponse getInternProfiles(
+            int page,
+            int size,
+            String school,
+            String major,
+            InternProfileStatus status
+    ) {
+        User currentUser = getCurrentUser();
+
+        if (!isHr(currentUser) && !isAdmin(currentUser)) {
+            throw new AccessDeniedException("Only HR or ADMIN can view intern profile list");
+        }
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending()
+        );
+
+        String normalizedSchool = normalizeFilter(school);
+        String normalizedMajor = normalizeFilter(major);
+
+        Page<InternProfile> profilePage = internProfileRepository.searchInternProfiles(
+                normalizedSchool,
+                normalizedMajor,
+                status,
+                pageable
+        );
+
+        return new InternProfilePageResponse(
+                profilePage.getContent()
+                        .stream()
+                        .map(InternProfileResponse::fromEntity)
+                        .toList(),
+                profilePage.getNumber(),
+                profilePage.getSize(),
+                profilePage.getTotalElements(),
+                profilePage.getTotalPages()
+        );
+    }
+
+    private String normalizeFilter(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
+    }
+
 }
