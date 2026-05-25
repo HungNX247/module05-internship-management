@@ -9,6 +9,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import com.codegym.internship.intern.dto.InternProfilePageResponse;
+import com.codegym.internship.intern.entity.InternProfileStatus;
+
 @RestController
 @RequestMapping("/api/interns")
 @RequiredArgsConstructor
@@ -37,5 +40,24 @@ public class InternProfileController {
     public ApiResponse<InternProfileResponse> getProfileDetail(@PathVariable Long id) {
         InternProfileResponse response = internProfileService.getProfileDetail(id);
         return ApiResponse.success("Get intern profile successfully", response);
+    }
+
+    @GetMapping
+    public ApiResponse<InternProfilePageResponse> getInternProfiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String school,
+            @RequestParam(required = false) String major,
+            @RequestParam(required = false) InternProfileStatus status
+    ) {
+        InternProfilePageResponse response = internProfileService.getInternProfiles(
+                page,
+                size,
+                school,
+                major,
+                status
+        );
+
+        return ApiResponse.success("Get intern profiles successfully", response);
     }
 }

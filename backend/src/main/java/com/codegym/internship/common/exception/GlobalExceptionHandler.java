@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+//Trường hợp file qua 5MB
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -34,7 +37,27 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiResponse<Void> handleValidation(MethodArgumentNotValidException ex) {
-        return ApiResponse.error("Validation failed");
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage())
+                .orElse("Validation failed");
+
+        return ApiResponse.error(message);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Void> handleIllegalArgument(IllegalArgumentException ex) {
+        return ApiResponse.error(ex.getMessage());
+    }
+
+    //file qua 5MB
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public ApiResponse<Void> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+        return ApiResponse.error("Dung luong file qua 5MB");
     }
 
     @ExceptionHandler(Exception.class)
