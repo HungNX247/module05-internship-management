@@ -1,10 +1,15 @@
 function formatFileSize(size) {
-  if (!size && size !== 0) return "-";
+  if (size === null || size === undefined) return "—";
 
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
 
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function displayValue(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  return value;
 }
 
 function DocumentList({ documents }) {
@@ -14,7 +19,7 @@ function DocumentList({ documents }) {
         <div className="empty-state__icon">📄</div>
         <p className="empty-state__title">Chưa có tài liệu</p>
         <p className="empty-state__desc">
-          Intern chưa upload CV hoặc đơn xin thực tập.
+          Upload CV hoặc đơn xin thực tập để hoàn thiện hồ sơ.
         </p>
       </div>
     );
@@ -27,24 +32,33 @@ function DocumentList({ documents }) {
           <div className="document-item__icon">📄</div>
           <div className="document-item__content">
             <div className="document-item__name">
-              {document.fileName || "Tài liệu"}
+              {displayValue(document.fileName)}
             </div>
             <div className="document-item__meta">
-              <span>{document.fileType || "-"}</span>
-              <span>{formatFileSize(document.fileSize)}</span>
-              <span>{document.uploadedAt || "-"}</span>
+              <span>{displayValue(document.fileType)}</span>
+              <span>{formatFileSize(document.size)}</span>
+              <span>{displayValue(document.uploadedAt)}</span>
             </div>
           </div>
 
           {document.fileUrl && (
-            <a
-              className="document-item__link"
-              href={document.fileUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Xem file
-            </a>
+            <div className="document-item__actions">
+              <a
+                className="document-item__link"
+                href={document.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Xem
+              </a>
+              <a
+                className="document-item__link"
+                href={document.fileUrl}
+                download
+              >
+                Tải
+              </a>
+            </div>
           )}
         </div>
       ))}

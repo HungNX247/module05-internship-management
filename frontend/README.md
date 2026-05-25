@@ -36,3 +36,9 @@ http://localhost:5173
 ## Ghi chú
 - PrivateRoute và RoleRoute mới là placeholder ở Sprint 0.
 - Logic kiểm tra token/role sẽ hoàn thiện ở Sprint 1.
+
+## Security backlog
+
+- **SECURITY-001**: Migrate token storage from localStorage to HttpOnly cookie + refresh token.
+- **SECURITY-002**: Add logout/token revocation endpoint integration.
+- **SECURITY-003**: CSP headers, sanitize rich-text input.

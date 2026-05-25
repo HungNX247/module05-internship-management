@@ -5,6 +5,8 @@ import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import HrDashboardPage from "../pages/hr/HrDashboardPage";
 import MentorDashboardPage from "../pages/mentor/MentorDashboardPage";
 import InternDashboardPage from "../pages/intern/InternDashboardPage";
+import InternProfilePage from "../pages/intern/InternProfilePage";
+import InternApplyPage from "../pages/intern/InternApplyPage";
 import UserListPage from "../pages/admin/users/UserListPage";
 import UserFormPage from "../pages/admin/users/UserFormPage";
 import HrInternListPage from "../pages/hr/interns/HrInternListPage";
@@ -70,7 +72,7 @@ function AppRoutes() {
         path="/hr/dashboard"
         element={
           <PrivateRoute>
-            <RoleRoute allowedRoles={["HR"]}>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
               <HrDashboardPage />
             </RoleRoute>
           </PrivateRoute>
@@ -81,7 +83,7 @@ function AppRoutes() {
         path="/hr/interns"
         element={
           <PrivateRoute>
-            <RoleRoute allowedRoles={["HR"]}>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
               <HrInternListPage />
             </RoleRoute>
           </PrivateRoute>
@@ -92,7 +94,7 @@ function AppRoutes() {
         path="/hr/interns/:id"
         element={
           <PrivateRoute>
-            <RoleRoute allowedRoles={["HR"]}>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
               <HrInternDetailPage />
             </RoleRoute>
           </PrivateRoute>
@@ -116,6 +118,28 @@ function AppRoutes() {
           <PrivateRoute>
             <RoleRoute allowedRoles={["INTERN"]}>
               <InternDashboardPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/intern/profile"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["INTERN"]}>
+              <InternProfilePage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/intern/apply"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["INTERN"]}>
+              <InternApplyPage />
             </RoleRoute>
           </PrivateRoute>
         }

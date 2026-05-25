@@ -1,4 +1,23 @@
-/** Mock data for HR intern UI (T-059–T-061) when BE chưa sẵn sàng. Bật: VITE_HR_INTERN_MOCK=true */
+/** Mock data for HR/Intern UI when BE chưa sẵn sàng. Bật: VITE_HR_INTERN_MOCK=true */
+
+const MOCK_MY_PROFILE_KEY = "mockInternMyProfile";
+
+function readMockMyProfile() {
+  try {
+    const raw = localStorage.getItem(MOCK_MY_PROFILE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeMockMyProfile(profile) {
+  if (profile) {
+    localStorage.setItem(MOCK_MY_PROFILE_KEY, JSON.stringify(profile));
+  } else {
+    localStorage.removeItem(MOCK_MY_PROFILE_KEY);
+  }
+}
 
 export const MOCK_INTERNS = [
   {
@@ -120,6 +139,131 @@ export function getMockDocumentsByInternId(internId) {
     success: true,
     message: "Get documents successfully (mock)",
     data: docs,
+  };
+}
+
+export function getMockMyProfile() {
+  const profile = readMockMyProfile();
+  if (!profile) {
+    const error = new Error("Chưa có hồ sơ intern (mock)");
+    error.response = { status: 404, data: { message: "Chưa có hồ sơ intern" } };
+    throw error;
+  }
+  return {
+    success: true,
+    message: "Get my profile successfully (mock)",
+    data: profile,
+  };
+}
+
+export function createMockMyProfile(data) {
+  const existing = readMockMyProfile();
+  if (existing) {
+    return {
+      success: false,
+      message: "Hồ sơ đã tồn tại (mock)",
+      code: "CONFLICT",
+    };
+  }
+
+  const profile = {
+    id: 99,
+    userId: 10,
+    status: "DRAFT",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    ...data,
+  };
+
+  writeMockMyProfile(profile);
+  MOCK_DOCUMENTS_BY_INTERN[profile.id] = MOCK_DOCUMENTS_BY_INTERN[profile.id] || [];
+
+  return {
+    success: true,
+    message: "Tạo hồ sơ thành công (mock)",
+    data: profile,
+  };
+}
+
+export function updateMockMyProfile(id, data) {
+  const profile = readMockMyProfile();
+  if (!profile || String(profile.id) !== String(id)) {
+    return { success: false, message: "Không tìm thấy hồ sơ (mock)" };
+  }
+
+  const updated = {
+    ...profile,
+    ...data,
+    updatedAt: new Date().toISOString(),
+  };
+  writeMockMyProfile(updated);
+
+  return {
+    success: true,
+    message: "Cập nhật hồ sơ thành công (mock)",
+    data: updated,
+  };
+}
+
+export function submitMockMyProfile(id) {
+  const profile = readMockMyProfile();
+  if (!profile || String(profile.id) !== String(id)) {
+    return { success: false, message: "Không tìm thấy hồ sơ (mock)" };
+  }
+
+  if (profile.status !== "DRAFT") {
+    const error = new Error("Hồ sơ đã được nộp (mock)");
+    error.response = {
+      status: 409,
+      data: { message: "Hồ sơ đã được nộp, không thể nộp lại" },
+    };
+    throw error;
+  }
+
+  const submitted = {
+    ...profile,
+    status: "SUBMITTED",
+    updatedAt: new Date().toISOString(),
+  };
+  writeMockMyProfile(submitted);
+
+  return {
+    success: true,
+    message: "Nộp hồ sơ thành công (mock)",
+    data: submitted,
+  };
+}
+
+export function uploadMockDocument(formData) {
+  const profile = readMockMyProfile();
+  if (!profile) {
+    return { success: false, message: "Chưa có hồ sơ để upload tài liệu (mock)" };
+  }
+
+  const file = formData.get("file");
+  const fileName = file?.name || "document.pdf";
+  const fileSize = file?.size || 0;
+  const ext = fileName.split(".").pop()?.toUpperCase() || "FILE";
+
+  const newDoc = {
+    id: Date.now(),
+    fileName,
+    fileType: ext,
+    fileSize,
+    uploadedAt: new Date().toISOString(),
+    fileUrl: null,
+  };
+
+  const internId = profile.id;
+  MOCK_DOCUMENTS_BY_INTERN[internId] = [
+    ...(MOCK_DOCUMENTS_BY_INTERN[internId] || []),
+    newDoc,
+  ];
+
+  return {
+    success: true,
+    message: "Upload tài liệu thành công (mock)",
+    data: newDoc,
   };
 }
 
