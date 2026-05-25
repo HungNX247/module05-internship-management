@@ -48,7 +48,7 @@ function UserListPage() {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-          "Không tải được danh sách user. Vui lòng thử lại."
+        "Không tải được danh sách user. Vui lòng thử lại."
       );
     } finally {
       setLoading(false);
@@ -57,7 +57,6 @@ function UserListPage() {
 
   useEffect(() => {
     loadUsers(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleSearch() {

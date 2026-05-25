@@ -26,13 +26,6 @@ function UserFormPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isEditMode) {
-      loadUserDetail();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
-
   async function loadUserDetail() {
     try {
       setLoading(true);
@@ -60,6 +53,12 @@ function UserFormPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (isEditMode) {
+      loadUserDetail();
+    }
+  }, [id]);
 
   function handleChange(e) {
     const { name, value } = e.target;

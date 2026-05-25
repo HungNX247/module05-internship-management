@@ -25,8 +25,8 @@ function Sidebar() {
     ],
     INTERN: [
       { path: "/intern/dashboard", label: "Intern Dashboard", icon: "🎓" },
-      { path: "/intern/tasks", label: "My Tasks", icon: "✅" },
-      { path: "/intern/reports", label: "Weekly Reports", icon: "📄" },
+      { path: "/intern/apply", label: "Nộp hồ sơ", icon: "📄" },
+      { path: "/intern/profile", label: "Hồ sơ của tôi", icon: "👤" },
     ],
   };
 
