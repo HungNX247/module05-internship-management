@@ -3,31 +3,38 @@ import {
   isHrInternMockEnabled,
   uploadMockDocument,
   getMockDocumentsByInternId,
+  throwMockApiErrorIfConfigured,
 } from "../mocks/hrInternMock";
 
+function useMock(mockFn, apiFn) {
+  throwMockApiErrorIfConfigured();
+  if (isHrInternMockEnabled) {
+    return mockFn();
+  }
+  return apiFn();
+}
+
 export const documentApi = {
-  uploadDocument: (formData) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(uploadMockDocument(formData));
-    }
-    return axiosClient.post("/documents/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-  },
+  uploadDocument: (formData) =>
+    useMock(
+      () => uploadMockDocument(formData),
+      () =>
+        axiosClient.post("/documents/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+    ),
 
-  getDocumentsByInternId: (internId) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(getMockDocumentsByInternId(internId));
-    }
-    return axiosClient.get(`/interns/${internId}/documents`);
-  },
+  getDocumentsByInternId: (internId) =>
+    useMock(
+      () => getMockDocumentsByInternId(internId),
+      () => axiosClient.get(`/interns/${internId}/documents`)
+    ),
 
-  getDocumentsByInternProfileId: (internProfileId) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(getMockDocumentsByInternId(internProfileId));
-    }
-    return axiosClient.get(`/interns/${internProfileId}/documents`);
-  },
+  getDocumentsByInternProfileId: (internProfileId) =>
+    useMock(
+      () => getMockDocumentsByInternId(internProfileId),
+      () => axiosClient.get(`/interns/${internProfileId}/documents`)
+    ),
 };

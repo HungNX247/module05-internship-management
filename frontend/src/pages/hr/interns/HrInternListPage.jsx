@@ -5,11 +5,7 @@ import { Pagination } from "../../../components/common";
 import HrInternFilter from "../../../components/intern/HrInternFilter";
 import HrInternTable from "../../../components/intern/HrInternTable";
 import { internApi } from "../../../api/internApi";
-import {
-  filterMockInterns,
-  isHrInternMockEnabled,
-  throwMockApiErrorIfConfigured,
-} from "../../../mocks/hrInternMock";
+import { isHrInternMockEnabled } from "../../../mocks/hrInternMock";
 import { getApiErrorMessage } from "../../../utils/apiErrorMessage";
 import MainLayout from "../../../layouts/MainLayout";
 import "../../../styles/hr-intern.css";
@@ -37,8 +33,6 @@ function HrInternListPage() {
       setLoading(true);
       setErrorMessage("");
 
-      throwMockApiErrorIfConfigured();
-
       const params = {
         page: nextPage,
         size,
@@ -47,9 +41,7 @@ function HrInternListPage() {
         status: filters.status || undefined,
       };
 
-      const response = isHrInternMockEnabled
-        ? filterMockInterns(params)
-        : await internApi.getInterns(params);
+      const response = await internApi.getInterns(params);
 
       if (!response.success) {
         setInterns([]);

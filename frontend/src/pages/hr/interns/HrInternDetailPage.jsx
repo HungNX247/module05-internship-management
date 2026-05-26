@@ -5,13 +5,9 @@ import { Button } from "../../../components/common";
 import DocumentList from "../../../components/intern/DocumentList";
 import { internApi } from "../../../api/internApi";
 import { documentApi } from "../../../api/documentApi";
-import {
-  getMockDocumentsByInternId,
-  getMockInternById,
-  isHrInternMockEnabled,
-  throwMockApiErrorIfConfigured,
-} from "../../../mocks/hrInternMock";
+import { isHrInternMockEnabled } from "../../../mocks/hrInternMock";
 import { getApiErrorMessage } from "../../../utils/apiErrorMessage";
+import { mapDocuments } from "../../../utils/mapDocument";
 import MainLayout from "../../../layouts/MainLayout";
 import "../../../styles/hr-intern.css";
 
@@ -35,14 +31,10 @@ function HrInternDetailPage() {
       setLoading(true);
       setErrorMessage("");
 
-      throwMockApiErrorIfConfigured();
-
-      const [profileResponse, documentResponse] = isHrInternMockEnabled
-        ? [getMockInternById(id), getMockDocumentsByInternId(id)]
-        : await Promise.all([
-          internApi.getInternById(id),
-          documentApi.getDocumentsByInternId(id),
-        ]);
+      const [profileResponse, documentResponse] = await Promise.all([
+        internApi.getInternById(id),
+        documentApi.getDocumentsByInternId(id),
+      ]);
 
       if (!profileResponse.success) {
         setErrorMessage(
@@ -55,11 +47,10 @@ function HrInternDetailPage() {
 
       if (documentResponse.success) {
         const documentData = documentResponse.data;
-        setDocuments(
-          Array.isArray(documentData)
-            ? documentData
-            : documentData?.items || []
-        );
+        const raw = Array.isArray(documentData)
+          ? documentData
+          : documentData?.items || [];
+        setDocuments(mapDocuments(raw));
       } else {
         setDocuments([]);
       }
@@ -100,6 +91,13 @@ function HrInternDetailPage() {
             Quay lại danh sách
           </Button>
         </div>
+
+        {isHrInternMockEnabled && (
+          <div className="alert alert--success">
+            Đang dùng dữ liệu mock (VITE_HR_INTERN_MOCK=true). Tắt khi tích hợp API
+            thật.
+          </div>
+        )}
 
         {errorMessage && (
           <div className="alert alert--error">{errorMessage}</div>

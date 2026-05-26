@@ -6,6 +6,8 @@ import { Button } from "../../components/common";
 import { internApi } from "../../api/internApi";
 import { documentApi } from "../../api/documentApi";
 import { isHrInternMockEnabled } from "../../mocks/hrInternMock";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
+import { mapDocuments } from "../../utils/mapDocument";
 import "../../styles/intern-profile.css";
 
 const initialFormData = {
@@ -95,7 +97,7 @@ function InternApplyPage() {
     } catch (error) {
       // Don't show error if it's just that the profile doesn't exist yet
       if (error.response?.status !== 404) {
-        setApiError("Không thể tải thông tin hồ sơ hiện tại.");
+        setApiError(getApiErrorMessage(error, "Không thể tải thông tin hồ sơ hiện tại."));
       }
     } finally {
       setFetching(false);
@@ -107,7 +109,10 @@ function InternApplyPage() {
     try {
       const response = await documentApi.getDocumentsByInternProfileId(profileId);
       if (response.success) {
-        setDocuments(response.data || []);
+        const raw = Array.isArray(response.data)
+          ? response.data
+          : response.data?.items || [];
+        setDocuments(mapDocuments(raw));
       }
     } catch {
       setDocuments([]);
@@ -155,11 +160,7 @@ function InternApplyPage() {
       setSuccessMessage("Đã lưu thông tin hồ sơ thành công! Hãy tiếp tục upload tài liệu.");
       await loadDocuments(response.data.id);
     } catch (error) {
-      setApiError(
-        error.response?.data?.message ||
-        error.message ||
-        "Lưu hồ sơ thất bại"
-      );
+      setApiError(getApiErrorMessage(error, "Lưu hồ sơ thất bại"));
     } finally {
       setLoading(false);
     }
@@ -192,11 +193,7 @@ function InternApplyPage() {
       setProfile(response.data);
       setSuccessMessage("Nộp hồ sơ thực tập thành công! HR sẽ sớm xét duyệt hồ sơ của bạn.");
     } catch (error) {
-      setApiError(
-        error.response?.data?.message ||
-        error.message ||
-        "Nộp hồ sơ thất bại"
-      );
+      setApiError(getApiErrorMessage(error, "Nộp hồ sơ thất bại"));
     } finally {
       setSubmitting(false);
     }

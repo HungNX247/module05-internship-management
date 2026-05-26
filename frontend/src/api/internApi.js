@@ -7,55 +7,54 @@ import {
   submitMockIntern,
   getMockInternById,
   filterMockInterns,
+  throwMockApiErrorIfConfigured,
 } from "../mocks/hrInternMock";
 
+function useMock(mockFn, apiFn) {
+  throwMockApiErrorIfConfigured();
+  if (isHrInternMockEnabled) {
+    return mockFn();
+  }
+  return apiFn();
+}
+
 export const internApi = {
-  createProfile: (data) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(createMockIntern(data));
-    }
-    return axiosClient.post("/interns", data);
-  },
+  getMyProfile: () =>
+    useMock(getMockMyProfile, () => axiosClient.get("/interns/me")),
 
-  updateProfile: (id, data) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(updateMockIntern(id, data));
-    }
-    return axiosClient.put(`/interns/${id}`, data);
-  },
+  createProfile: (data) =>
+    useMock(
+      () => createMockIntern(data),
+      () => axiosClient.post("/interns", data)
+    ),
 
-  getProfileDetail: (id) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(getMockInternById(id));
-    }
-    return axiosClient.get(`/interns/${id}`);
-  },
+  updateProfile: (id, data) =>
+    useMock(
+      () => updateMockIntern(id, data),
+      () => axiosClient.put(`/interns/${id}`, data)
+    ),
 
-  getInterns: (params) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(filterMockInterns(params));
-    }
-    return axiosClient.get("/interns", { params });
-  },
+  submitProfile: (id) =>
+    useMock(
+      () => submitMockIntern(id),
+      () => axiosClient.patch(`/interns/${id}/submit`)
+    ),
 
-  getInternById: (id) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(getMockInternById(id));
-    }
-    return axiosClient.get(`/interns/${id}`);
-  },
+  getProfileDetail: (id) =>
+    useMock(
+      () => getMockInternById(id),
+      () => axiosClient.get(`/interns/${id}`)
+    ),
 
-  getMyProfile: () => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(getMockMyProfile());
-    }
-    return axiosClient.get("/interns/me");
-  },
+  getInterns: (params) =>
+    useMock(
+      () => filterMockInterns(params),
+      () => axiosClient.get("/interns", { params })
+    ),
 
-  submitProfile: (id) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(submitMockIntern(id));
-    }
-    return axiosClient.patch(`/interns/${id}/submit`);
-  },
+  getInternById: (id) =>
+    useMock(
+      () => getMockInternById(id),
+      () => axiosClient.get(`/interns/${id}`)
+    ),
 };

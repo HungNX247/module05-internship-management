@@ -10,7 +10,8 @@ function Input({
   error,
   icon,
   className = "",
-  children
+  children,
+  ...props
 }) {
   return (
     <div className={`form-group ${className}`}>
@@ -23,9 +24,10 @@ function Input({
           className={`form-input ${error ? "form-input-error" : ""} ${icon ? "has-icon" : ""}`}
           type={type}
           name={name}
-          value={value}
+          value={value ?? ""}
           placeholder={placeholder}
           onChange={onChange}
+          {...props}
         />
 
         {children}

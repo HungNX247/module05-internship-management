@@ -6,6 +6,8 @@ import DocumentUpload from "../../components/intern/DocumentUpload";
 import { internApi } from "../../api/internApi";
 import { documentApi } from "../../api/documentApi";
 import { isHrInternMockEnabled } from "../../mocks/hrInternMock";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
+import { mapDocuments } from "../../utils/mapDocument";
 import "../../styles/intern-profile.css";
 
 function toFormData(profile) {
@@ -91,11 +93,14 @@ function InternProfilePage() {
         setFormData(null);
       }
     } catch (error) {
-      setErrorMessage(
-        error.response?.data?.message ||
-        error.message ||
-        "Không tải được hồ sơ"
-      );
+      if (error.response?.status === 404) {
+        setProfile(null);
+        setFormData(null);
+        setDocuments([]);
+        setErrorMessage("");
+        return;
+      }
+      setErrorMessage(getApiErrorMessage(error, "Không tải được hồ sơ"));
     } finally {
       setLoading(false);
     }
@@ -107,7 +112,10 @@ function InternProfilePage() {
     try {
       const response = await documentApi.getDocumentsByInternProfileId(profileId);
       if (response.success) {
-        setDocuments(response.data || []);
+        const raw = Array.isArray(response.data)
+          ? response.data
+          : response.data?.items || [];
+        setDocuments(mapDocuments(raw));
       }
     } catch {
       setDocuments([]);
@@ -153,11 +161,7 @@ function InternProfilePage() {
       setFormData(toFormData(response.data));
       setSuccessMessage("Cập nhật hồ sơ thành công");
     } catch (error) {
-      setErrorMessage(
-        error.response?.data?.message ||
-        error.message ||
-        "Cập nhật hồ sơ thất bại"
-      );
+      setErrorMessage(getApiErrorMessage(error, "Cập nhật hồ sơ thất bại"));
     } finally {
       setSaving(false);
     }
@@ -308,10 +312,12 @@ function InternProfilePage() {
                             {doc.documentType || "TÀI LIỆU"}
                           </span>
                           <div className="doc-details">
-                            <span className="doc-file-name">{doc.fileName}</span>
+                            <span className="doc-file-name">{doc.fileName || "—"}</span>
                             <span className="doc-file-meta">
-                              {doc.fileSize ? `${(doc.fileSize / 1024).toFixed(1)} KB` : ""} •{" "}
-                              {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString("vi-VN") : ""}
+                              {doc.size != null ? `${(doc.size / 1024).toFixed(1)} KB` : "—"} •{" "}
+                              {doc.uploadedAt
+                                ? new Date(doc.uploadedAt).toLocaleDateString("vi-VN")
+                                : "—"}
                             </span>
                           </div>
                         </div>

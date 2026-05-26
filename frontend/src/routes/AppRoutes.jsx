@@ -72,7 +72,7 @@ function AppRoutes() {
         path="/hr/dashboard"
         element={
           <PrivateRoute>
-            <RoleRoute allowedRoles={["HR"]}>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
               <HrDashboardPage />
             </RoleRoute>
           </PrivateRoute>
@@ -83,7 +83,7 @@ function AppRoutes() {
         path="/hr/interns"
         element={
           <PrivateRoute>
-            <RoleRoute allowedRoles={["HR"]}>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
               <HrInternListPage />
             </RoleRoute>
           </PrivateRoute>
@@ -94,7 +94,7 @@ function AppRoutes() {
         path="/hr/interns/:id"
         element={
           <PrivateRoute>
-            <RoleRoute allowedRoles={["HR"]}>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
               <HrInternDetailPage />
             </RoleRoute>
           </PrivateRoute>

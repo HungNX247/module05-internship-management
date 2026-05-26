@@ -1,3 +1,10 @@
+/**
+ * ⚠️ Technical debt:
+ * Hiện token và currentUser được lưu trong localStorage để phục vụ demo MVP.
+ * Production cần chuyển sang HttpOnly cookie + refresh token để giảm rủi ro XSS.
+ * Tracking: backlog SECURITY-001
+ */
+
 const TOKEN_KEY = "accessToken";
 const USER_KEY = "currentUser";
 

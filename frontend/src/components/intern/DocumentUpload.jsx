@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "../common";
 import { documentApi } from "../../api/documentApi";
+import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx"];
@@ -113,11 +114,7 @@ function DocumentUpload({ internProfileId, onUploaded }) {
         onUploaded(response.data);
       }
     } catch (error) {
-      setErrorMessage(
-        error.response?.data?.message ||
-          error.message ||
-          "Upload tài liệu thất bại"
-      );
+      setErrorMessage(getApiErrorMessage(error, "Upload tài liệu thất bại"));
     } finally {
       setUploading(false);
     }
