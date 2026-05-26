@@ -70,7 +70,6 @@ function HrInternDetailPage() {
 
   useEffect(() => {
     loadDetail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   return (
@@ -92,6 +91,13 @@ function HrInternDetailPage() {
             Quay lại danh sách
           </Button>
         </div>
+
+        {isHrInternMockEnabled && (
+          <div className="alert alert--success">
+            Đang dùng dữ liệu mock (VITE_HR_INTERN_MOCK=true). Tắt khi tích hợp API
+            thật.
+          </div>
+        )}
 
         {errorMessage && (
           <div className="alert alert--error">{errorMessage}</div>

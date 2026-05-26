@@ -1,8 +1,8 @@
 import axiosClient from "./axiosClient";
 import {
-  getMockDocumentsByInternId,
-  uploadMockDocument,
   isHrInternMockEnabled,
+  uploadMockDocument,
+  getMockDocumentsByInternId,
   throwMockApiErrorIfConfigured,
 } from "../mocks/hrInternMock";
 
@@ -30,5 +30,11 @@ export const documentApi = {
     useMock(
       () => getMockDocumentsByInternId(internId),
       () => axiosClient.get(`/interns/${internId}/documents`)
+    ),
+
+  getDocumentsByInternProfileId: (internProfileId) =>
+    useMock(
+      () => getMockDocumentsByInternId(internProfileId),
+      () => axiosClient.get(`/interns/${internProfileId}/documents`)
     ),
 };

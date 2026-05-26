@@ -1,12 +1,12 @@
 import axiosClient from "./axiosClient";
 import {
-  filterMockInterns,
-  getMockInternById,
-  getMockMyProfile,
-  createMockMyProfile,
-  updateMockMyProfile,
-  submitMockMyProfile,
   isHrInternMockEnabled,
+  getMockMyProfile,
+  createMockIntern,
+  updateMockIntern,
+  submitMockIntern,
+  getMockInternById,
+  filterMockInterns,
   throwMockApiErrorIfConfigured,
 } from "../mocks/hrInternMock";
 
@@ -23,22 +23,28 @@ export const internApi = {
     useMock(getMockMyProfile, () => axiosClient.get("/interns/me")),
 
   createProfile: (data) =>
-    useMock(() => createMockMyProfile(data), () => axiosClient.post("/interns", data)),
+    useMock(
+      () => createMockIntern(data),
+      () => axiosClient.post("/interns", data)
+    ),
 
   updateProfile: (id, data) =>
     useMock(
-      () => updateMockMyProfile(id, data),
+      () => updateMockIntern(id, data),
       () => axiosClient.put(`/interns/${id}`, data)
     ),
 
   submitProfile: (id) =>
     useMock(
-      () => submitMockMyProfile(id),
+      () => submitMockIntern(id),
       () => axiosClient.patch(`/interns/${id}/submit`)
     ),
 
   getProfileDetail: (id) =>
-    useMock(() => getMockInternById(id), () => axiosClient.get(`/interns/${id}`)),
+    useMock(
+      () => getMockInternById(id),
+      () => axiosClient.get(`/interns/${id}`)
+    ),
 
   getInterns: (params) =>
     useMock(
@@ -47,5 +53,8 @@ export const internApi = {
     ),
 
   getInternById: (id) =>
-    useMock(() => getMockInternById(id), () => axiosClient.get(`/interns/${id}`)),
+    useMock(
+      () => getMockInternById(id),
+      () => axiosClient.get(`/interns/${id}`)
+    ),
 };

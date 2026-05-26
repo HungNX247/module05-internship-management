@@ -5,6 +5,7 @@ export const mapDocument = (doc) => ({
   fileUrl: doc.fileUrl ?? (doc.id ? `/api/documents/${doc.id}/download` : null),
   size: doc.size ?? doc.fileSize,
   uploadedAt: doc.uploadedAt ?? doc.createdAt,
+  documentType: doc.documentType,
 });
 
 export function mapDocuments(docs) {

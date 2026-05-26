@@ -1,106 +1,109 @@
-import { Input } from "../common";
-
-const emptyForm = {
-  fullName: "",
-  email: "",
-  phone: "",
-  school: "",
-  major: "",
-  academicYear: "",
-  gpa: "",
-  birthDate: "",
-};
+import { Button, Input } from "../common";
 
 function InternProfileForm({
   formData,
-  errors = {},
+  errors,
+  loading,
+  submitLabel = "Lưu hồ sơ",
   onChange,
+  onSubmit,
   disabled = false,
 }) {
-  const data = { ...emptyForm, ...formData };
-  const isLocked = disabled;
-
   return (
-    <div className="intern-profile-form">
-      <div className="intern-profile-form__grid">
+    <form className="intern-form" onSubmit={onSubmit} noValidate>
+      <div className="intern-form-grid">
         <Input
-          label="Họ và tên"
+          label="Họ tên"
           name="fullName"
-          value={data.fullName}
+          value={formData.fullName}
+          placeholder="Nhập họ tên"
           onChange={onChange}
           error={errors.fullName}
-          disabled={isLocked}
-          placeholder="Nguyễn Văn A"
+          disabled={disabled}
         />
+
         <Input
           label="Email"
-          name="email"
           type="email"
-          value={data.email}
+          name="email"
+          value={formData.email}
+          placeholder="Nhập email"
           onChange={onChange}
           error={errors.email}
-          disabled={isLocked}
-          placeholder="email@example.com"
+          disabled={disabled}
         />
+
         <Input
           label="Số điện thoại"
           name="phone"
-          value={data.phone}
+          value={formData.phone}
+          placeholder="VD: 0912345678"
           onChange={onChange}
           error={errors.phone}
-          disabled={isLocked}
-          placeholder="0912345678"
+          disabled={disabled}
         />
+
         <Input
-          label="Trường"
+          label="Trường học"
           name="school"
-          value={data.school}
+          value={formData.school}
+          placeholder="Nhập tên trường học"
           onChange={onChange}
           error={errors.school}
-          disabled={isLocked}
+          disabled={disabled}
         />
+
         <Input
-          label="Ngành"
+          label="Ngành học"
           name="major"
-          value={data.major}
+          value={formData.major}
+          placeholder="Nhập ngành học"
           onChange={onChange}
           error={errors.major}
-          disabled={isLocked}
+          disabled={disabled}
         />
+
         <Input
           label="Năm học"
           name="academicYear"
-          value={data.academicYear}
+          value={formData.academicYear}
+          placeholder="VD: Năm 4"
           onChange={onChange}
           error={errors.academicYear}
-          disabled={isLocked}
-          placeholder="Năm 3"
+          disabled={disabled}
         />
+
         <Input
           label="GPA"
-          name="gpa"
           type="number"
-          step="0.01"
-          min="0"
-          max="4"
-          value={data.gpa}
+          name="gpa"
+          value={formData.gpa}
+          placeholder="VD: 3.2"
           onChange={onChange}
           error={errors.gpa}
-          disabled={isLocked}
-        />
-        <Input
-          label="Ngày sinh"
-          name="birthDate"
-          type="date"
-          value={data.birthDate}
-          onChange={onChange}
-          error={errors.birthDate}
-          disabled={isLocked}
+          min="0"
+          max="4"
+          step="0.01"
+          disabled={disabled}
         />
       </div>
-    </div>
+
+      {!disabled && (
+        <div className="intern-form-actions">
+          <Button type="submit" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="btn-loading-spinner" />
+                Đang xử lý...
+              </>
+            ) : (
+              submitLabel
+            )}
+          </Button>
+        </div>
+      )}
+    </form>
   );
 }
 
-export { emptyForm };
 export default InternProfileForm;
