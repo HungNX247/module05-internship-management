@@ -14,10 +14,15 @@ public class DocumentResponse {
     private Long internProfileId;
     private String documentType;
     private String originalFileName;
-    private String storedFileName;
-    private String filePath;
+    private String fileName; // For frontend compatibility
+
+//    private String storedFileName; // --- Sửa lỗi không trả về toredFile
+//    private String filePath;  // --- Sửa lỗi không trả về filePath
+
     private String contentType;
+    private String fileType; // For frontend compatibility
     private Long fileSize;
+    private Long size; // For frontend compatibility
     private LocalDateTime uploadedAt;
 
     public static DocumentResponse fromEntity(Document document) {
@@ -26,9 +31,14 @@ public class DocumentResponse {
                 document.getInternProfile().getId(),
                 document.getDocumentType().name(),
                 document.getOriginalFileName(),
-                document.getStoredFileName(),
-                document.getFilePath(),
+                document.getOriginalFileName(),
+
+//                document.getStoredFileName(), // --- Sửa lỗi không trả về toredFile
+//                document.getFilePath(), // --- Sửa lỗi không trả về FilePath
+
                 document.getContentType(),
+                document.getContentType(),
+                document.getFileSize(),
                 document.getFileSize(),
                 document.getUploadedAt()
         );

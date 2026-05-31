@@ -32,6 +32,20 @@ public class InternProfileService {
     private final InternProfileRepository internProfileRepository;
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
+    public InternProfileResponse getMyProfile() {
+        User currentUser = getCurrentUser();
+
+        if (currentUser.getRole().getCode() != Role.INTERN) {
+            throw new AccessDeniedException("Only INTERN can view their own profile");
+        }
+
+        InternProfile profile = internProfileRepository.findByUser(currentUser)
+                .orElseThrow(() -> new IllegalArgumentException("Intern profile not found"));
+
+        return InternProfileResponse.fromEntity(profile);
+    }
+
     @Transactional
     public InternProfileResponse createProfile(InternProfileCreateRequest request) {
         User currentUser = getCurrentUser();
@@ -87,6 +101,31 @@ public class InternProfileService {
         profile.setGpa(request.getGpa());
 
         InternProfile savedProfile = internProfileRepository.save(profile);
+        return InternProfileResponse.fromEntity(savedProfile);
+    }
+
+    @Transactional
+    public InternProfileResponse submitProfile(Long id) {
+        User currentUser = getCurrentUser();
+
+        // Lấy profile theo ID
+        InternProfile profile = internProfileRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Intern profile not found"));
+
+        // Kiểm tra quyền: chỉ owner của profile mới được submit
+        if (!isIntern(currentUser) || !profile.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You do not have permission to submit this profile");
+        }
+
+        // Kiểm tra trạng thái: chỉ DRAFT mới được submit
+        if (profile.getStatus() != InternProfileStatus.DRAFT) {
+            throw new IllegalArgumentException("Only DRAFT profile can be submitted");
+        }
+
+        // Cập nhật trạng thái
+        profile.setStatus(InternProfileStatus.SUBMITTED);
+        InternProfile savedProfile = internProfileRepository.save(profile);
+
         return InternProfileResponse.fromEntity(savedProfile);
     }
 

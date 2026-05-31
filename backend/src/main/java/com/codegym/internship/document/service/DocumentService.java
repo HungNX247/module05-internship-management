@@ -105,6 +105,23 @@ public class DocumentService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Document downloadDocument(Long id) {
+        User currentUser = getCurrentUser();
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Document not found"));
+
+        if (isIntern(currentUser) && !document.getInternProfile().getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You do not have permission to download this document");
+        }
+
+        if (!isIntern(currentUser) && !isHr(currentUser) && !isAdmin(currentUser)) {
+            throw new AccessDeniedException("You do not have permission to download this document");
+        }
+
+        return document;
+    }
+
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File is required");

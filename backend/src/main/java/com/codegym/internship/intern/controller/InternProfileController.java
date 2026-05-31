@@ -19,6 +19,12 @@ public class InternProfileController {
 
     private final InternProfileService internProfileService;
 
+    @GetMapping("/me")
+    public ApiResponse<InternProfileResponse> getMyProfile() {
+        InternProfileResponse response = internProfileService.getMyProfile();
+        return ApiResponse.success("Get my profile successfully", response);
+    }
+
     @PostMapping
     public ApiResponse<InternProfileResponse> createProfile(
             @Valid @RequestBody InternProfileCreateRequest request
@@ -59,5 +65,11 @@ public class InternProfileController {
         );
 
         return ApiResponse.success("Get intern profiles successfully", response);
+    }
+
+    @PatchMapping("/{id}/submit")
+    public ApiResponse<InternProfileResponse> submitProfile(@PathVariable Long id) {
+        InternProfileResponse response = internProfileService.submitProfile(id);
+        return ApiResponse.success("Submit profile successfully", response);
     }
 }
