@@ -1,61 +1,39 @@
 import axiosClient from "./axiosClient";
 import {
   isHrInternMockEnabled,
-  getMockMyProfile,
-  createMockIntern,
-  updateMockIntern,
-  submitMockIntern,
   getMockInternById,
   filterMockInterns,
+  throwMockApiErrorIfConfigured,
 } from "../mocks/hrInternMock";
 
+function useMock(mockFn, apiFn) {
+  throwMockApiErrorIfConfigured();
+  if (isHrInternMockEnabled) {
+    return mockFn();
+  }
+  return apiFn();
+}
+
 export const internApi = {
-  createProfile: (data) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(createMockIntern(data));
-    }
-    return axiosClient.post("/interns", data);
-  },
+  createProfile: (data) => axiosClient.post("/interns", data),
 
-  updateProfile: (id, data) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(updateMockIntern(id, data));
-    }
-    return axiosClient.put(`/interns/${id}`, data);
-  },
+  getMyProfile: () => axiosClient.get("/interns/me"),
 
-  getProfileDetail: (id) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(getMockInternById(id));
-    }
-    return axiosClient.get(`/interns/${id}`);
-  },
+  updateProfile: (id, data) => axiosClient.put(`/interns/${id}`, data),
 
-  getInterns: (params) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(filterMockInterns(params));
-    }
-    return axiosClient.get("/interns", { params });
-  },
+  submitProfile: (data) => axiosClient.post("/interns/apply", data),
 
-  getInternById: (id) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(getMockInternById(id));
-    }
-    return axiosClient.get(`/interns/${id}`);
-  },
+  getProfileDetail: (id) => axiosClient.get(`/interns/${id}`),
 
-  getMyProfile: () => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(getMockMyProfile());
-    }
-    return axiosClient.get("/interns/me");
-  },
+  getInterns: (params) =>
+    useMock(
+      () => filterMockInterns(params),
+      () => axiosClient.get("/interns", { params })
+    ),
 
-  submitProfile: (id) => {
-    if (isHrInternMockEnabled) {
-      return Promise.resolve(submitMockIntern(id));
-    }
-    return axiosClient.patch(`/interns/${id}/submit`);
-  },
+  getInternById: (id) =>
+    useMock(
+      () => getMockInternById(id),
+      () => axiosClient.get(`/interns/${id}`)
+    ),
 };

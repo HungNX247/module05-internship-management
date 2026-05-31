@@ -36,6 +36,7 @@ export function removeCurrentUser() {
   localStorage.removeItem(USER_KEY);
 }
 
+
 export function clearAuthData() {
   removeToken();
   removeCurrentUser();
@@ -45,7 +46,6 @@ export function isAuthenticated() {
   return Boolean(getToken());
 }
 
-/** Chỉ dùng khi VITE_HR_INTERN_MOCK=true — test UI HR không cần backend auth */
 export function ensureDevHrAuthForMock() {
   if (import.meta.env.VITE_HR_INTERN_MOCK !== "true") {
     return;
