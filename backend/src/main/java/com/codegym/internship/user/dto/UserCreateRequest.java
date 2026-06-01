@@ -5,6 +5,7 @@ import com.codegym.internship.user.enums.UserStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,19 +13,24 @@ import lombok.Setter;
 @Setter
 public class UserCreateRequest {
 
-    @NotBlank(message = "Full name is required")
+    @NotBlank(message = "Vui lòng nhập họ tên")
     private String fullName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email format is invalid")
+    @NotBlank(message = "Vui lòng nhập email")
+    @Email(message = "Email không đúng định dạng")
     private String email;
 
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(
+            regexp = "^0(3|5|7|8|9)\\d{8}$",
+            message = "Số điện thoại không đúng định dạng Việt Nam"
+    )
     private String phone;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Vui lòng nhập mật khẩu")
     private String password;
 
-    @NotNull(message = "Role is required")
+    @NotNull(message = "Vui lòng chọn vai trò")
     private Role role;
 
     private UserStatus status = UserStatus.ACTIVE;

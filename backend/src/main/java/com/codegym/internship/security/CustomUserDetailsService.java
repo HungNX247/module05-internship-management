@@ -20,10 +20,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng"));
 
         if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new DisabledException("User is inactive");
+            throw new DisabledException("Tài khoản đã bị khóa");
         }
 
         String authority = "ROLE_" + user.getRole().getCode().name();

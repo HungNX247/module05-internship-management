@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { authApi } from "../../api/authApi";
 import { clearAuthData, getCurrentUser } from "../../services/tokenService";
 
@@ -10,6 +10,7 @@ function Header() {
     try {
       await authApi.logout();
     } catch {
+      // Vẫn đăng xuất ở client nếu request server thất bại.
     } finally {
       clearAuthData();
       navigate("/login", { replace: true });
@@ -44,8 +45,8 @@ function Header() {
       <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <div style={{ textAlign: "right", display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "#1e293b" }}>{currentUser?.fullName || "User"}</span>
-            <span style={{ fontSize: "0.75rem", color: "#64748b" }}>{currentUser?.role || "Guest"}</span>
+            <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "#1e293b" }}>{currentUser?.fullName || "Người dùng"}</span>
+            <span style={{ fontSize: "0.75rem", color: "#64748b" }}>{currentUser?.role || "Khách"}</span>
           </div>
           <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", color: "#64748b", border: "2px solid #fff", boxShadow: "0 0 0 1px #e2e8f0" }}>
             {(currentUser?.fullName || "U").charAt(0).toUpperCase()}
@@ -77,7 +78,7 @@ function Header() {
             e.currentTarget.style.borderColor = "#e2e8f0";
           }}
         >
-          Logout
+          Đăng xuất
         </button>
       </div>
     </header>

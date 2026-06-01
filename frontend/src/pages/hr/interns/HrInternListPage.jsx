@@ -46,7 +46,7 @@ function HrInternListPage() {
       if (!response.success) {
         setInterns([]);
         setTotalPages(0);
-        setErrorMessage(response.message || "Không tải được danh sách intern");
+        setErrorMessage(response.message || "Không tải được danh sách thực tập sinh");
         return;
       }
 
@@ -61,7 +61,7 @@ function HrInternListPage() {
       setErrorMessage(
         getApiErrorMessage(
           error,
-          "Không tải được danh sách intern. Vui lòng thử lại."
+          "Không tải được danh sách thực tập sinh. Vui lòng thử lại."
         )
       );
     } finally {
@@ -100,7 +100,7 @@ function HrInternListPage() {
           <div>
             <h2 className="hr-intern-title">Danh sách hồ sơ thực tập sinh</h2>
             <p className="hr-intern-subtitle">
-              Xem, tìm kiếm và lọc hồ sơ intern đã nộp trong hệ thống
+              Xem, tìm kiếm và lọc hồ sơ thực tập sinh đã nộp trong hệ thống
             </p>
           </div>
         </div>

@@ -22,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserAdminService {
 
+    private static final String VIETNAM_PHONE_REGEX = "^0(3|5|7|8|9)\\d{8}$";
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -30,12 +31,12 @@ public class UserAdminService {
         validateCreate(request);
 
         RoleEntity role = roleRepository.findByCode(request.getRole())
-                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy vai trò"));
 
         User user = new User();
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
+        user.setFullName(normalizeText(request.getFullName()));
+        user.setEmail(normalizeText(request.getEmail()));
+        user.setPhone(normalizeText(request.getPhone()));
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
         user.setStatus(request.getStatus() == null ? UserStatus.ACTIVE : request.getStatus());
@@ -45,12 +46,16 @@ public class UserAdminService {
     }
 
     private void validateCreate(UserCreateRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+        String email = normalizeText(request.getEmail());
+        String phone = normalizeText(request.getPhone());
+
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email đã tồn tại");
         }
-        if (request.getPhone() != null && !request.getPhone().isBlank()
-                && userRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException("Phone already exists");
+
+        if (phone != null && !phone.isBlank()
+                && userRepository.existsByPhone(phone)) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
     }
 
@@ -108,7 +113,7 @@ public class UserAdminService {
 
     public UserResponse getUserDetail(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
         return toResponse(user);
     }
 
@@ -116,16 +121,16 @@ public class UserAdminService {
         User currentUser = getCurrentUser();
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
 
         validateUpdate(id, request);
 
         RoleEntity role = roleRepository.findByCode(request.getRole())
-                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy vai trò"));
 
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
+        user.setFullName(normalizeText(request.getFullName()));
+        user.setEmail(normalizeText(request.getEmail()));
+        user.setPhone(normalizeText(request.getPhone()));
 
         if (!currentUser.getId().equals(id)) {
             user.setRole(role);
@@ -141,23 +146,27 @@ public class UserAdminService {
     }
 
     private void validateUpdate(Long id, UserUpdateRequest request) {
-        if (userRepository.existsByEmailAndIdNot(request.getEmail(), id)) {
-            throw new IllegalArgumentException("Email already exists");
+        String email = normalizeText(request.getEmail());
+        String phone = normalizeText(request.getPhone());
+
+        if (userRepository.existsByEmailAndIdNot(email, id)) {
+            throw new IllegalArgumentException("Email đã tồn tại");
         }
-        if (request.getPhone() != null && !request.getPhone().isBlank()
-                && userRepository.existsByPhoneAndIdNot(request.getPhone(), id)) {
-            throw new IllegalArgumentException("Phone already exists");
+
+        if (phone != null && !phone.isBlank()
+                && userRepository.existsByPhoneAndIdNot(phone, id)) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
     }
 
     public UserResponse updateStatus(Long id, UserStatusRequest request) {
         User currentUser = getCurrentUser();
         if (currentUser.getId().equals(id)) {
-            throw new IllegalArgumentException("Cannot lock/unlock your own account");
+            throw new IllegalArgumentException("Không thể khóa hoặc mở khóa tài khoản của chính bạn");
         }
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
 
         user.setStatus(request.getStatus());
 
@@ -169,6 +178,22 @@ public class UserAdminService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Current user not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng hiện tại"));
+    }
+
+    private void validateVietnamPhone(String phone) {
+        if (phone == null || phone.isBlank()) {
+            return;
+        }
+
+        String normalizedPhone = phone.trim();
+
+        if (!normalizedPhone.matches(VIETNAM_PHONE_REGEX)) {
+            throw new IllegalArgumentException("Số điện thoại không đúng định dạng Việt Nam");
+        }
+    }
+
+    private String normalizeText(String value) {
+        return value == null ? null : value.trim();
     }
 }

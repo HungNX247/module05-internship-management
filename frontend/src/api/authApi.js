@@ -1,4 +1,4 @@
-import axiosClient from "./axiosClient";
+﻿import axiosClient from "./axiosClient";
 import { isHrInternMockEnabled } from "../mocks/hrInternMock";
 import { getCurrentUser } from "../services/tokenService";
 
@@ -26,7 +26,7 @@ export const authApi = {
 
       return {
         success: true,
-        message: "Login successful (mock)",
+        message: "Đăng nhập thành công (mock)",
         data: {
           token: `mock-token-${role.toLowerCase()}`,
           user: {
@@ -47,7 +47,7 @@ export const authApi = {
       const user = getCurrentUser();
       return Promise.resolve({
         success: true,
-        message: "Get current user successfully (mock)",
+        message: "Lấy thông tin người dùng hiện tại thành công (mock)",
         data: user || {
           id: 10,
           fullName: "Mock Intern",
@@ -63,7 +63,7 @@ export const authApi = {
     if (isHrInternMockEnabled) {
       return Promise.resolve({
         success: true,
-        message: "Logout successful (mock)",
+        message: "Đăng xuất thành công (mock)",
       });
     }
     return axiosClient.post("/auth/logout");

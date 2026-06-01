@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 
 import { Button } from "../common";
 import DocumentList from "./DocumentList";
@@ -203,7 +203,7 @@ function InternProfileContent({ pageTitle, pageSubtitle }) {
       const submitted = response.data;
       setProfile(submitted);
       setFormData(profileToForm(submitted));
-      setSuccessMessage("Nộp hồ sơ thành công. Hồ sơ đã chuyển sang trạng thái SUBMITTED.");
+      setSuccessMessage("Nộp hồ sơ thành công. Hồ sơ đang chờ HR/Admin duyệt.");
     } catch (error) {
       setApiError(getApiErrorMessage(error));
     } finally {
@@ -221,16 +221,16 @@ function InternProfileContent({ pageTitle, pageSubtitle }) {
 
       const form = new FormData();
       form.append("file", file);
-      form.append("internId", String(profile.id));
+      form.append("documentType", "CV");
 
       const response = await documentApi.uploadDocument(form);
 
       if (!response.success) {
-        setApiError(response.message || "Upload thất bại");
+        setApiError(response.message || "Tải lên thất bại");
         return;
       }
 
-      setSuccessMessage("Upload tài liệu thành công.");
+      setSuccessMessage("Tải tài liệu lên thành công.");
       await loadDocuments(profile.id);
     } catch (error) {
       setApiError(getApiErrorMessage(error));
@@ -327,14 +327,14 @@ function InternProfileContent({ pageTitle, pageSubtitle }) {
                       onChange={(e) => handleUpload(e.target.files?.[0])}
                     />
                     {uploading && (
-                      <span className="intern-upload-status">Đang upload...</span>
+                      <span className="intern-upload-status">Đang tải lên...</span>
                     )}
                   </div>
                   <DocumentList documents={documents} />
                 </>
               ) : (
                 <p className="empty-state__desc">
-                  Lưu hồ sơ trước khi upload tài liệu.
+                  Lưu hồ sơ trước khi tải tài liệu lên.
                 </p>
               )}
             </div>
@@ -342,7 +342,7 @@ function InternProfileContent({ pageTitle, pageSubtitle }) {
 
           {profile && !isDraft && (
             <p className="intern-profile-locked-note">
-              Hồ sơ đã nộp — các trường và upload đã bị khóa.
+              Hồ sơ đã nộp — các trường và chức năng tải lên đã bị khóa.
             </p>
           )}
         </>

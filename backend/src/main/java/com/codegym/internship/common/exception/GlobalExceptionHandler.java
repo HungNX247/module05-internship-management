@@ -19,19 +19,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ApiResponse<Void> handleBadCredentials(BadCredentialsException ex) {
-        return ApiResponse.error("Invalid email or password");
+        return ApiResponse.error("Email hoặc mật khẩu không đúng");
     }
 
     @ExceptionHandler(DisabledException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiResponse<Void> handleDisabledUser(DisabledException ex) {
-        return ApiResponse.error("User is inactive");
+        return ApiResponse.error("Tài khoản đã bị khóa");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ApiResponse<Void> handleAccessDenied(AccessDeniedException ex) {
-        return ApiResponse.error("Access denied");
+        return ApiResponse.error("Bạn không có quyền thực hiện thao tác này");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
                 .stream()
                 .findFirst()
                 .map(error -> error.getDefaultMessage())
-                .orElse("Validation failed");
+                .orElse("Dữ liệu không hợp lệ");
 
         return ApiResponse.error(message);
     }
@@ -57,12 +57,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
     public ApiResponse<Void> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
-        return ApiResponse.error("Dung luong file qua 5MB");
+        return ApiResponse.error("Dung lượng file vượt quá 5MB");
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Void> handleException(Exception ex) {
-        return ApiResponse.error("Internal server error");
+        return ApiResponse.error("Lỗi hệ thống. Vui lòng thử lại sau");
     }
 }

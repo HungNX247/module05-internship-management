@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../../api/authApi";
 import { saveToken, saveCurrentUser } from "../../services/tokenService";
@@ -64,7 +64,7 @@ function LoginPage() {
         return;
       }
 
-      // remember user
+      // Ghi nhớ email đăng nhập.
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", formData.email.trim());
       } else {
@@ -73,7 +73,7 @@ function LoginPage() {
 
       const loginData = response.data;
       if (!loginData || !loginData.token || !loginData.user) {
-        setApiError("Dữ liệu phản hồi từ server không hợp lệ (thiếu Token hoặc User).");
+        setApiError("Dữ liệu phản hồi từ server không hợp lệ (thiếu token hoặc thông tin người dùng).");
         return;
       }
 

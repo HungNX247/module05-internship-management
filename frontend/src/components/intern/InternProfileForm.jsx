@@ -9,8 +9,10 @@ function InternProfileForm({
   onSubmit,
   disabled = false,
 }) {
+  const FormContainer = onSubmit ? "form" : "div";
+
   return (
-    <form className="intern-form" onSubmit={onSubmit} noValidate>
+    <FormContainer className="intern-form" onSubmit={onSubmit} noValidate={onSubmit ? true : undefined}>
       <div className="intern-form-grid">
         <Input
           label="Họ tên"
@@ -88,7 +90,7 @@ function InternProfileForm({
         />
       </div>
 
-      {!disabled && (
+      {onSubmit && !disabled && (
         <div className="intern-form-actions">
           <Button type="submit" disabled={loading}>
             {loading ? (
@@ -102,7 +104,7 @@ function InternProfileForm({
           </Button>
         </div>
       )}
-    </form>
+    </FormContainer>
   );
 }
 
