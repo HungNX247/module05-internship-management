@@ -6,7 +6,7 @@ import {
   throwMockApiErrorIfConfigured,
 } from "../mocks/hrInternMock";
 
-function useMock(mockFn, apiFn) {
+function withMock(mockFn, apiFn) {
   throwMockApiErrorIfConfigured();
   if (isHrInternMockEnabled) {
     return mockFn();
@@ -21,18 +21,22 @@ export const internApi = {
 
   updateProfile: (id, data) => axiosClient.put(`/interns/${id}`, data),
 
-  submitProfile: (data) => axiosClient.post("/interns/apply", data),
+  submitProfile: (id) => axiosClient.post(`/interns/${id}/submit`),
+
+  approveProfile: (id) => axiosClient.patch(`/interns/${id}/approve`),
+
+  rejectProfile: (id) => axiosClient.patch(`/interns/${id}/reject`),
 
   getProfileDetail: (id) => axiosClient.get(`/interns/${id}`),
 
   getInterns: (params) =>
-    useMock(
+    withMock(
       () => filterMockInterns(params),
       () => axiosClient.get("/interns", { params })
     ),
 
   getInternById: (id) =>
-    useMock(
+    withMock(
       () => getMockInternById(id),
       () => axiosClient.get(`/interns/${id}`)
     ),

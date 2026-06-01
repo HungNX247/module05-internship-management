@@ -1,4 +1,4 @@
-import { Button } from "../common";
+﻿import { Button } from "../common";
 
 const STATUS_BADGE = {
   DRAFT: "badge--draft",
@@ -6,14 +6,20 @@ const STATUS_BADGE = {
   PENDING: "badge--pending",
 };
 
+const STATUS_LABEL = {
+  DRAFT: "Bản nháp",
+  PENDING: "Chờ duyệt",
+  SUBMITTED: "Đã duyệt",
+};
+
 function HrInternTable({ interns, onViewDetail }) {
   if (!interns || interns.length === 0) {
     return (
       <div className="empty-state">
         <div className="empty-state__icon">🎓</div>
-        <p className="empty-state__title">Không có hồ sơ intern nào</p>
+        <p className="empty-state__title">Không có hồ sơ thực tập sinh nào</p>
         <p className="empty-state__desc">
-          Thử đổi bộ lọc hoặc chờ intern nộp hồ sơ.
+          Thử đổi bộ lọc hoặc chờ thực tập sinh nộp hồ sơ.
         </p>
       </div>
     );
@@ -27,7 +33,7 @@ function HrInternTable({ interns, onViewDetail }) {
             <th>ID</th>
             <th>Họ tên</th>
             <th>Email</th>
-            <th>Phone</th>
+            <th>Số điện thoại</th>
             <th>Trường</th>
             <th>Ngành</th>
             <th>Năm học</th>
@@ -53,7 +59,7 @@ function HrInternTable({ interns, onViewDetail }) {
                 <span
                   className={`badge ${STATUS_BADGE[intern.status] || "badge--draft"}`}
                 >
-                  {intern.status || "-"}
+                  {STATUS_LABEL[intern.status] || intern.status || "-"}
                 </span>
               </td>
               <td>

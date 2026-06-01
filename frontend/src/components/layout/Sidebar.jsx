@@ -7,36 +7,36 @@ function Sidebar() {
 
   const menuItems = {
     ADMIN: [
-      { path: "/admin/dashboard", label: "Admin Dashboard", icon: "📊" },
-      { path: "/admin/users", label: "User Management", icon: "👥" },
-      { path: "/admin/logs", label: "System Logs", icon: "📋", comingSoon: true },
-      { path: "/admin/settings", label: "Settings", icon: "⚙️", comingSoon: true },
-      { path: "/hr/interns", label: "Interns", icon: "👨‍🎓" },
+      { path: "/admin/dashboard", label: "Bảng điều khiển Admin", icon: "📊" },
+      { path: "/admin/users", label: "Quản lý người dùng", icon: "👥" },
+      { path: "/admin/logs", label: "Nhật ký hệ thống", icon: "📋", comingSoon: true },
+      { path: "/admin/settings", label: "Cài đặt", icon: "⚙️", comingSoon: true },
+      { path: "/hr/interns", label: "Thực tập sinh", icon: "🎓" },
     ],
     HR: [
-      { path: "/hr/dashboard", label: "HR Dashboard", icon: "🏢" },
-      { path: "/hr/interns", label: "Interns", icon: "👨‍🎓" },
-      { path: "/hr/vacancies", label: "Vacancies", icon: "📋", comingSoon: true },
-      { path: "/hr/reports", label: "Reports", icon: "📈", comingSoon: true },
+      { path: "/hr/dashboard", label: "Bảng điều khiển HR", icon: "🏢" },
+      { path: "/hr/interns", label: "Thực tập sinh", icon: "🎓" },
+      { path: "/hr/vacancies", label: "Vị trí tuyển dụng", icon: "📋", comingSoon: true },
+      { path: "/hr/reports", label: "Báo cáo", icon: "📈", comingSoon: true },
     ],
     MENTOR: [
-      { path: "/mentor/dashboard", label: "Mentor Dashboard", icon: "👨‍🏫" },
-      { path: "/mentor/interns", label: "My Interns", icon: "👥", comingSoon: true },
+      { path: "/mentor/dashboard", label: "Bảng điều khiển Mentor", icon: "👨‍🏫" },
+      { path: "/mentor/interns", label: "Thực tập sinh của tôi", icon: "👥", comingSoon: true },
       {
         path: "/mentor/evaluations",
-        label: "Evaluations",
+        label: "Đánh giá",
         icon: "📝",
         comingSoon: true,
       },
     ],
     INTERN: [
-      { path: "/intern/dashboard", label: "Intern Dashboard", icon: "🎓" },
+      { path: "/intern/dashboard", label: "Bảng điều khiển thực tập sinh", icon: "🎓" },
       { path: "/intern/apply", label: "Nộp hồ sơ", icon: "📄" },
       { path: "/intern/profile", label: "Hồ sơ của tôi", icon: "👤" },
-      { path: "/intern/tasks", label: "My Tasks", icon: "✅", comingSoon: true },
+      { path: "/intern/tasks", label: "Công việc của tôi", icon: "✅", comingSoon: true },
       {
         path: "/intern/reports",
-        label: "Weekly Reports",
+        label: "Báo cáo tuần",
         icon: "📄",
         comingSoon: true,
       },
@@ -107,7 +107,7 @@ function Sidebar() {
           color: "#94a3b8",
         }}
       >
-        System v1.0.4
+        Hệ thống v1.0.4
       </div>
     </aside>
   );

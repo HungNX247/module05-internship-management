@@ -1,4 +1,4 @@
-import { Button } from "../common";
+﻿import { Button } from "../common";
 
 const ROLE_BADGE = {
   ADMIN: "badge--role-admin",
@@ -12,9 +12,9 @@ function UserTable({ users, onEdit, onToggleStatus }) {
     return (
       <div className="empty-state">
         <div className="empty-state__icon">📋</div>
-        <p className="empty-state__title">Không có user nào</p>
+        <p className="empty-state__title">Không có người dùng nào</p>
         <p className="empty-state__desc">
-          Thử đổi bộ lọc hoặc thêm user mới.
+          Thử đổi bộ lọc hoặc thêm người dùng mới.
         </p>
       </div>
     );
@@ -28,9 +28,9 @@ function UserTable({ users, onEdit, onToggleStatus }) {
             <th>ID</th>
             <th>Họ tên</th>
             <th>Email</th>
-            <th>Phone</th>
-            <th>Role</th>
-            <th>Status</th>
+            <th>Số điện thoại</th>
+            <th>Vai trò</th>
+            <th>Trạng thái</th>
             <th>Thao tác</th>
           </tr>
         </thead>

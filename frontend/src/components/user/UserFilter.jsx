@@ -23,9 +23,9 @@ function UserFilter({
       </div>
 
       <div className="user-filter-field">
-        <label>Role</label>
+        <label>Vai trò</label>
         <select value={role} onChange={(e) => onRoleChange(e.target.value)}>
-          <option value="">Tất cả role</option>
+          <option value="">Tất cả vai trò</option>
           <option value="ADMIN">ADMIN</option>
           <option value="HR">HR</option>
           <option value="MENTOR">MENTOR</option>

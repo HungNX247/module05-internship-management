@@ -1,13 +1,21 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
 import MainLayout from "../../layouts/MainLayout";
 import InternProfileForm from "../../components/intern/InternProfileForm";
 import DocumentUpload from "../../components/intern/DocumentUpload";
+import DocumentList from "../../components/intern/DocumentList";
 import { internApi } from "../../api/internApi";
 import { documentApi } from "../../api/documentApi";
 import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 import { mapDocuments } from "../../utils/mapDocument";
 import "../../styles/intern-profile.css";
+
+const STATUS_LABEL = {
+  DRAFT: "Bản nháp",
+  PENDING: "Chờ HR/Admin duyệt",
+  SUBMITTED: "Đã duyệt",
+};
 
 function toFormData(profile) {
   return {
@@ -105,6 +113,7 @@ function InternProfilePage() {
       } else {
         setProfile(null);
         setFormData(null);
+        setDocuments([]);
       }
     } catch (error) {
       if (error.response?.status === 404) {
@@ -186,7 +195,7 @@ function InternProfilePage() {
     );
   }
 
-  const isSubmitted = profile?.status === "SUBMITTED";
+  const isLocked = profile?.status && profile.status !== "DRAFT";
 
   return (
     <MainLayout>
@@ -206,7 +215,9 @@ function InternProfilePage() {
             <div className="empty-profile-card">
               <span className="empty-profile-icon">📝</span>
               <h3>Bạn chưa tạo hồ sơ thực tập</h3>
-              <p>Hồ sơ của bạn giúp HR và người hướng dẫn đánh giá năng lực của bạn.</p>
+              <p>
+                Hồ sơ của bạn giúp HR và người hướng dẫn đánh giá năng lực của bạn.
+              </p>
               <Link to="/intern/apply" className="create-profile-btn">
                 Tạo hồ sơ ứng tuyển ngay
               </Link>
@@ -214,24 +225,19 @@ function InternProfilePage() {
           </div>
         ) : (
           <div className="intern-page-grid">
-            {/* Column 1: Info */}
             <div className="intern-card">
               <div className="card-header-flex">
                 <h3 className="card-section-title">Thông tin học tập</h3>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span className={`status-badge-val status--${profile.status.toLowerCase()}`}>
-                    {profile.status === "SUBMITTED"
-                      ? "Đã nộp"
-                      : profile.status === "DRAFT"
-                        ? "Bản nháp"
-                        : profile.status}
+                    {STATUS_LABEL[profile.status] || profile.status}
                   </span>
                 </div>
               </div>
 
-              {isSubmitted && (
+              {isLocked && (
                 <div className="info-lock-banner">
-                  🔒 Hồ sơ đã nộp không thể chỉnh sửa thông tin.
+                  🔒 Hồ sơ đã nộp không thể chỉnh sửa thông tin. Trạng thái hiện tại: {STATUS_LABEL[profile.status] || profile.status}.
                 </div>
               )}
 
@@ -242,52 +248,26 @@ function InternProfilePage() {
                 submitLabel="Cập nhật thông tin"
                 onChange={handleChange}
                 onSubmit={handleUpdateProfile}
-                disabled={isSubmitted}
+                disabled={isLocked}
               />
             </div>
 
-            {/* Column 2: Documents list */}
             <div className="intern-card">
-              <DocumentUpload
-                internProfileId={profile.id}
-                onUploaded={() => loadDocuments(profile.id)}
-              />
+              {isLocked ? (
+                <div className="upload-disabled-box">
+                  <span className="lock-icon">🔒</span>
+                  <p>Hồ sơ đã nộp nên không thể tải thêm tài liệu.</p>
+                </div>
+              ) : (
+                <DocumentUpload
+                  internProfileId={profile.id}
+                  onUploaded={() => loadDocuments(profile.id)}
+                />
+              )}
 
               <div className="uploaded-list-section" style={{ marginTop: "24px" }}>
                 <h3 className="card-section-title">Danh sách tài liệu đã nộp</h3>
-                {documents.length === 0 ? (
-                  <p className="no-docs-text">Chưa có tài liệu nào.</p>
-                ) : (
-                  <ul className="document-list-main">
-                    {documents.map((doc) => (
-                      <li key={doc.id} className="document-list-item-main">
-                        <div className="doc-item-left">
-                          <span className="doc-type-badge">
-                            {doc.documentType || "TÀI LIỆU"}
-                          </span>
-                          <div className="doc-details">
-                            <span className="doc-file-name">{doc.fileName || "—"}</span>
-                            <span className="doc-file-meta">
-                              {doc.size != null ? `${(doc.size / 1024).toFixed(1)} KB` : "—"} •{" "}
-                              {doc.uploadedAt
-                                ? new Date(doc.uploadedAt).toLocaleDateString("vi-VN")
-                                : "—"}
-                            </span>
-                          </div>
-                        </div>
-                        <a
-                          href={doc.fileUrl || "#"}
-                          onClick={(e) => !doc.fileUrl && e.preventDefault()}
-                          className={`download-doc-btn ${!doc.fileUrl ? "disabled" : ""}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Tải về
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <DocumentList documents={documents} />
               </div>
             </div>
           </div>

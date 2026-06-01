@@ -1,5 +1,7 @@
+import { documentApi } from "../../api/documentApi";
+
 function formatFileSize(size) {
-  if (size === null || size === undefined) return "—";
+  if (size === null || size === undefined) return "-";
 
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
@@ -8,8 +10,36 @@ function formatFileSize(size) {
 }
 
 function displayValue(value) {
-  if (value === null || value === undefined || value === "") return "—";
+  if (value === null || value === undefined || value === "") return "-";
   return value;
+}
+
+async function getDocumentBlob(document) {
+  if (!document?.id) return null;
+  return documentApi.downloadDocument(document.id);
+}
+
+async function openDocument(document) {
+  const blob = await getDocumentBlob(document);
+  if (!blob) return;
+
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank", "noopener,noreferrer");
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+async function saveDocument(document) {
+  const blob = await getDocumentBlob(document);
+  if (!blob) return;
+
+  const url = URL.createObjectURL(blob);
+  const link = window.document.createElement("a");
+  link.href = url;
+  link.download = document.fileName || "tai-lieu";
+  window.document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 function DocumentList({ documents }) {
@@ -19,7 +49,7 @@ function DocumentList({ documents }) {
         <div className="empty-state__icon">📄</div>
         <p className="empty-state__title">Chưa có tài liệu</p>
         <p className="empty-state__desc">
-          Upload CV hoặc đơn xin thực tập để hoàn thiện hồ sơ.
+          Tải CV hoặc đơn xin thực tập lên để hoàn thiện hồ sơ.
         </p>
       </div>
     );
@@ -41,23 +71,22 @@ function DocumentList({ documents }) {
             </div>
           </div>
 
-          {document.fileUrl && (
+          {document.id && (
             <div className="document-item__actions">
-              <a
+              <button
+                type="button"
                 className="document-item__link"
-                href={document.fileUrl}
-                target="_blank"
-                rel="noreferrer"
+                onClick={() => openDocument(document)}
               >
                 Xem
-              </a>
-              <a
+              </button>
+              <button
+                type="button"
                 className="document-item__link"
-                href={document.fileUrl}
-                download
+                onClick={() => saveDocument(document)}
               >
                 Tải
-              </a>
+              </button>
             </div>
           )}
         </div>

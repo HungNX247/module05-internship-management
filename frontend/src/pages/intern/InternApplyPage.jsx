@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
 import MainLayout from "../../layouts/MainLayout";
 import InternProfileForm from "../../components/intern/InternProfileForm";
 import DocumentUpload from "../../components/intern/DocumentUpload";
@@ -17,6 +17,12 @@ const initialFormData = {
   major: "",
   academicYear: "",
   gpa: "",
+};
+
+const STATUS_LABEL = {
+  DRAFT: "Bản nháp",
+  PENDING: "Chờ HR/Admin duyệt",
+  SUBMITTED: "Đã duyệt",
 };
 
 function validateProfileForm(formData) {
@@ -164,7 +170,7 @@ function InternApplyPage() {
       }
 
       setProfile(response.data);
-      setSuccessMessage("Đã lưu thông tin hồ sơ thành công! Hãy tiếp tục upload tài liệu.");
+      setSuccessMessage("Đã lưu thông tin hồ sơ thành công! Hãy tiếp tục tải tài liệu lên.");
       await loadDocuments(response.data.id);
     } catch (error) {
       setApiError(getApiErrorMessage(error, "Lưu hồ sơ thất bại"));
@@ -187,7 +193,21 @@ function InternApplyPage() {
       setApiError("");
       setSuccessMessage("");
 
-      const response = await internApi.submitProfile(buildProfilePayload(formData));
+      let savedProfile = profile;
+
+      if (!savedProfile?.id) {
+        const createResponse = await internApi.createProfile(buildProfilePayload(formData));
+
+        if (!createResponse.success) {
+          setApiError(createResponse.message || "Lưu hồ sơ thất bại");
+          return;
+        }
+
+        savedProfile = createResponse.data;
+        setProfile(savedProfile);
+      }
+
+      const response = await internApi.submitProfile(savedProfile.id);
 
       if (!response.success) {
         setApiError(response.message || "Nộp hồ sơ thất bại");
@@ -195,7 +215,7 @@ function InternApplyPage() {
       }
 
       setProfile(response.data);
-      setSuccessMessage("Nộp hồ sơ thực tập thành công! Bạn có thể tiếp tục upload tài liệu.");
+      setSuccessMessage("Nộp hồ sơ thực tập thành công! Hồ sơ đang chờ HR/Admin duyệt.");
       await loadDocuments(response.data.id);
     } catch (error) {
       setApiError(getApiErrorMessage(error, "Nộp hồ sơ thất bại"));
@@ -216,6 +236,7 @@ function InternApplyPage() {
   }
 
   const currentStep = !profile ? 1 : (profile.status === "DRAFT" ? 2 : 3);
+  const isEditableProfile = !profile || profile.status === "DRAFT";
 
   return (
     <MainLayout>
@@ -235,7 +256,7 @@ function InternApplyPage() {
           <div className="step-divider" />
           <div className={`step-item ${currentStep >= 2 ? "active" : ""} ${currentStep > 2 ? "completed" : ""}`}>
             <span className="step-num">{currentStep > 2 ? "✓" : "2"}</span>
-            <span className="step-label">Upload CV/Tài liệu</span>
+            <span className="step-label">Tải CV/Tài liệu lên</span>
           </div>
           <div className="step-divider" />
           <div className={`step-item ${currentStep === 3 ? "active completed" : ""}`}>
@@ -248,10 +269,10 @@ function InternApplyPage() {
         {successMessage && <div className="alert alert--success">{successMessage}</div>}
 
         <div className="intern-page-grid">
-          {/* Column 1: Profile Form */}
+          {/* Cột 1: biểu mẫu hồ sơ */}
           <div className="intern-card">
             <h3 className="card-section-title">Thông tin hồ sơ</h3>
-            {profile?.status === "SUBMITTED" ? (
+            {!isEditableProfile ? (
               <div className="submitted-view">
                 <div className="detail-list">
                   <div className="detail-row">
@@ -284,7 +305,7 @@ function InternApplyPage() {
                   </div>
                 </div>
                 <div className="info-badge-success">
-                  🔒 Hồ sơ đã nộp thành công và đang được khóa để duyệt. Bạn có thể xem chi tiết tại tab "Hồ sơ của tôi".
+                  🔒 Hồ sơ đã được nộp và đang khóa chỉnh sửa. Trạng thái hiện tại: {STATUS_LABEL[profile.status] || profile.status}.
                 </div>
               </div>
             ) : (
@@ -299,30 +320,31 @@ function InternApplyPage() {
             )}
           </div>
 
-          {/* Column 2: Status & Upload documents */}
+          {/* Cột 2: trạng thái và tải tài liệu lên */}
           <div className="intern-card">
             <h3 className="card-section-title">Trạng thái hồ sơ</h3>
 
             <div className="status-display-box">
               <span className="status-label">Trạng thái hiện tại:</span>
               <span className={`status-badge-val status--${profile?.status?.toLowerCase() || "none"}`}>
-                {profile?.status === "SUBMITTED"
-                  ? "Đã nộp"
-                  : profile?.status === "DRAFT"
-                    ? "Bản nháp"
-                    : "Chưa tạo hồ sơ"}
+                {profile ? STATUS_LABEL[profile.status] || profile.status : "Chưa tạo hồ sơ"}
               </span>
             </div>
 
-            {profile ? (
+            {profile && profile.status === "DRAFT" ? (
               <DocumentUpload
                 internProfileId={profile?.id}
                 onUploaded={() => loadDocuments(profile.id)}
               />
+            ) : profile ? (
+              <div className="upload-disabled-box">
+                <span className="lock-icon">🔒</span>
+                <p>Hồ sơ đã nộp nên không thể tải thêm tài liệu. Nếu bị từ chối, bạn sẽ sửa và nộp lại.</p>
+              </div>
             ) : (
               <div className="upload-disabled-box">
                 <span className="lock-icon">📝</span>
-                <p>Vui lòng nộp hoặc lưu hồ sơ nháp trước khi upload tài liệu.</p>
+                <p>Vui lòng nộp hoặc lưu hồ sơ nháp trước khi tải tài liệu lên.</p>
               </div>
             )}
 
@@ -349,7 +371,7 @@ function InternApplyPage() {
               )}
             </div>
 
-            {profile?.status !== "SUBMITTED" && (
+            {isEditableProfile && (
               <div className="submit-profile-box">
                 <Button
                   type="button"

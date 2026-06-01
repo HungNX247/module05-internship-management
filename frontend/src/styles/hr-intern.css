@@ -193,6 +193,10 @@
 }
 
 .document-item__link {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-primary);

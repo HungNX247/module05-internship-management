@@ -45,11 +45,11 @@ public class DocumentService {
         User currentUser = getCurrentUser();
 
         if (!isIntern(currentUser)) {
-            throw new AccessDeniedException("Only INTERN can upload documents");
+            throw new AccessDeniedException("Chỉ thực tập sinh mới được tải tài liệu lên");
         }
 
         InternProfile profile = internProfileRepository.findByUser(currentUser)
-                .orElseThrow(() -> new IllegalArgumentException("Intern profile not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
 
         validateFile(file);
 
@@ -80,7 +80,7 @@ public class DocumentService {
 
             return DocumentResponse.fromEntity(savedDocument);
         } catch (IOException ex) {
-            throw new IllegalArgumentException("Cannot store uploaded file");
+            throw new IllegalArgumentException("Không thể lưu file đã tải lên");
         }
     }
 
@@ -89,14 +89,14 @@ public class DocumentService {
         User currentUser = getCurrentUser();
 
         InternProfile profile = internProfileRepository.findById(internProfileId)
-                .orElseThrow(() -> new IllegalArgumentException("Intern profile not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
 
         if (isIntern(currentUser) && !profile.getUser().getId().equals(currentUser.getId())) {
-            throw new AccessDeniedException("You do not have permission to view these documents");
+            throw new AccessDeniedException("Bạn không có quyền xem các tài liệu này");
         }
 
         if (!isIntern(currentUser) && !isHr(currentUser) && !isAdmin(currentUser)) {
-            throw new AccessDeniedException("You do not have permission to view these documents");
+            throw new AccessDeniedException("Bạn không có quyền xem các tài liệu này");
         }
 
         return documentRepository.findByInternProfileIdOrderByUploadedAtDesc(internProfileId)
@@ -105,25 +105,45 @@ public class DocumentService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Document getDocumentForDownload(Long documentId) {
+        User currentUser = getCurrentUser();
+
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài liệu"));
+
+        InternProfile profile = document.getInternProfile();
+
+        if (isIntern(currentUser) && !profile.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("Bạn không có quyền tải tài liệu này");
+        }
+
+        if (!isIntern(currentUser) && !isHr(currentUser) && !isAdmin(currentUser)) {
+            throw new AccessDeniedException("Bạn không có quyền tải tài liệu này");
+        }
+
+        return document;
+    }
+
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("File is required");
+            throw new IllegalArgumentException("Vui lòng chọn file");
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new IllegalArgumentException("File size must not exceed 5MB");
+            throw new IllegalArgumentException("Dung lượng file không được vượt quá 5MB");
         }
 
         String extension = getExtension(file.getOriginalFilename());
 
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("Only PDF, DOC, DOCX files are allowed");
+            throw new IllegalArgumentException("Chỉ cho phép file PDF, DOC, DOCX");
         }
     }
 
     private String getExtension(String fileName) {
         if (fileName == null || fileName.isBlank() || !fileName.contains(".")) {
-            throw new IllegalArgumentException("Invalid file name");
+            throw new IllegalArgumentException("Tên file không hợp lệ");
         }
 
         return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
@@ -133,13 +153,13 @@ public class DocumentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication.getName() == null) {
-            throw new AccessDeniedException("User is not authenticated");
+            throw new AccessDeniedException("Người dùng chưa đăng nhập");
         }
 
         String email = authentication.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Current user not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng hiện tại"));
     }
 
     private boolean isIntern(User user) {

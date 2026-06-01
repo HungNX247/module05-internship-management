@@ -23,15 +23,15 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+                .orElseThrow(() -> new BadCredentialsException("Email hoặc mật khẩu không đúng"));
 
         if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new DisabledException("User is inactive");
+            throw new DisabledException("Tài khoản đã bị khóa");
         }
 
         boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
         if (!passwordMatches) {
-            throw new BadCredentialsException("Invalid email or password");
+            throw new BadCredentialsException("Email hoặc mật khẩu không đúng");
         }
 
         String token = jwtService.generateToken(user);
@@ -40,7 +40,7 @@ public class AuthService {
 
     public CurrentUserResponse getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BadCredentialsException("User not found"));
+                .orElseThrow(() -> new BadCredentialsException("Không tìm thấy người dùng"));
         return toCurrentUserResponse(user);
     }
 

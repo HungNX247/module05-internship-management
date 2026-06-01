@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "../../../components/common";
@@ -17,6 +17,12 @@ const STATUS_BADGE = {
   PENDING: "badge--pending",
 };
 
+const STATUS_LABEL = {
+  DRAFT: "Bản nháp",
+  PENDING: "Chờ duyệt",
+  SUBMITTED: "Đã duyệt",
+};
+
 function HrInternDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -24,7 +30,9 @@ function HrInternDetailPage() {
   const [intern, setIntern] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   async function loadDetail() {
     try {
@@ -38,7 +46,7 @@ function HrInternDetailPage() {
 
       if (!profileResponse.success) {
         setErrorMessage(
-          profileResponse.message || "Không tải được hồ sơ intern"
+          profileResponse.message || "Không tải được hồ sơ thực tập sinh"
         );
         return;
       }
@@ -72,14 +80,56 @@ function HrInternDetailPage() {
     loadDetail();
   }, [id]);
 
+  async function handleApprove() {
+    try {
+      setReviewing(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      const response = await internApi.approveProfile(id);
+      if (!response.success) {
+        setErrorMessage(response.message || "Duyệt hồ sơ thất bại");
+        return;
+      }
+
+      setIntern(response.data);
+      setSuccessMessage("Đã duyệt hồ sơ thực tập sinh.");
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "Duyệt hồ sơ thất bại"));
+    } finally {
+      setReviewing(false);
+    }
+  }
+
+  async function handleReject() {
+    try {
+      setReviewing(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      const response = await internApi.rejectProfile(id);
+      if (!response.success) {
+        setErrorMessage(response.message || "Từ chối hồ sơ thất bại");
+        return;
+      }
+
+      setIntern(response.data);
+      setSuccessMessage("Đã từ chối hồ sơ. Thực tập sinh có thể chỉnh sửa và nộp lại.");
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "Từ chối hồ sơ thất bại"));
+    } finally {
+      setReviewing(false);
+    }
+  }
+
   return (
     <MainLayout>
       <div className="hr-intern-page">
         <div className="hr-intern-header">
           <div>
-            <h2 className="hr-intern-title">Chi tiết hồ sơ intern</h2>
+            <h2 className="hr-intern-title">Chi tiết hồ sơ thực tập sinh</h2>
             <p className="hr-intern-subtitle">
-              Xem thông tin hồ sơ và tài liệu intern đã upload
+              Xem thông tin hồ sơ và tài liệu thực tập sinh đã tải lên
             </p>
           </div>
 
@@ -102,6 +152,9 @@ function HrInternDetailPage() {
         {errorMessage && (
           <div className="alert alert--error">{errorMessage}</div>
         )}
+        {successMessage && (
+          <div className="alert alert--success">{successMessage}</div>
+        )}
 
         {loading ? (
           <div className="loading-state">
@@ -116,9 +169,30 @@ function HrInternDetailPage() {
                 <span
                   className={`badge ${STATUS_BADGE[intern.status] || "badge--draft"}`}
                 >
-                  {intern.status || "-"}
+                  {STATUS_LABEL[intern.status] || intern.status || "-"}
                 </span>
               </div>
+
+              {intern.status === "PENDING" && (
+                <div className="intern-profile-actions">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    disabled={reviewing}
+                    onClick={handleApprove}
+                  >
+                    {reviewing ? "Đang xử lý..." : "Duyệt hồ sơ"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={reviewing}
+                    onClick={handleReject}
+                  >
+                    Từ chối
+                  </Button>
+                </div>
+              )}
 
               <div className="detail-list">
                 <div className="detail-row">
@@ -130,7 +204,7 @@ function HrInternDetailPage() {
                   <strong>{intern.email || "-"}</strong>
                 </div>
                 <div className="detail-row">
-                  <span>Phone</span>
+                  <span>Số điện thoại</span>
                   <strong>{intern.phone || "-"}</strong>
                 </div>
                 <div className="detail-row">
@@ -158,7 +232,7 @@ function HrInternDetailPage() {
 
             <div className="hr-intern-detail-card">
               <div className="hr-intern-detail-card__header">
-                <h3>Tài liệu đã upload</h3>
+                <h3>Tài liệu đã tải lên</h3>
               </div>
 
               <DocumentList documents={documents} />

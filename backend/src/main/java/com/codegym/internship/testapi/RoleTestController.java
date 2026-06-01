@@ -9,21 +9,21 @@ public class RoleTestController {
 
     @GetMapping("/api/admin/test")
     public ApiResponse<String> adminTest() {
-        return ApiResponse.success("Admin API access OK", "ADMIN");
+        return ApiResponse.success("Truy cập API ADMIN thành công", "ADMIN");
     }
 
     @GetMapping("/api/hr/test")
     public ApiResponse<String> hrTest() {
-        return ApiResponse.success("HR API access OK", "HR");
+        return ApiResponse.success("Truy cập API HR thành công", "HR");
     }
 
     @GetMapping("/api/mentor/test")
     public ApiResponse<String> mentorTest() {
-        return ApiResponse.success("Mentor API access OK", "MENTOR");
+        return ApiResponse.success("Truy cập API MENTOR thành công", "MENTOR");
     }
 
     @GetMapping("/api/intern/test")
     public ApiResponse<String> internTest() {
-        return ApiResponse.success("Intern API access OK", "INTERN");
+        return ApiResponse.success("Truy cập API INTERN thành công", "INTERN");
     }
 }

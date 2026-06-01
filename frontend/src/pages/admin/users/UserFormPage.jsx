@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Button, Input } from "../../../components/common";
@@ -32,7 +32,7 @@ function UserFormPage() {
       const response = await userApi.getUserById(id);
 
       if (!response.success) {
-        setErrorMessage(response.message || "Không tải được thông tin user");
+        setErrorMessage(response.message || "Không tải được thông tin người dùng");
         return;
       }
 
@@ -47,7 +47,7 @@ function UserFormPage() {
       });
     } catch (error) {
       setErrorMessage(
-        error.response?.data?.message || "Không tải được thông tin user"
+        error.response?.data?.message || "Không tải được thông tin người dùng"
       );
     } finally {
       setLoading(false);
@@ -90,11 +90,11 @@ function UserFormPage() {
     }
 
     if (!formData.role) {
-      nextErrors.role = "Vui lòng chọn role";
+      nextErrors.role = "Vui lòng chọn vai trò";
     }
 
     if (!formData.status) {
-      nextErrors.status = "Vui lòng chọn status";
+      nextErrors.status = "Vui lòng chọn trạng thái";
     }
 
     setErrors(nextErrors);
@@ -127,16 +127,16 @@ function UserFormPage() {
         : await userApi.createUser(payload);
 
       if (!response.success) {
-        setErrorMessage(response.message || "Lưu user thất bại");
+        setErrorMessage(response.message || "Lưu người dùng thất bại");
         return;
       }
 
       setSuccessMessage(
-        isEditMode ? "Cập nhật user thành công" : "Tạo user thành công"
+        isEditMode ? "Cập nhật người dùng thành công" : "Tạo người dùng thành công"
       );
       navigate("/admin/users", { replace: true });
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || "Lưu user thất bại");
+      setErrorMessage(error.response?.data?.message || "Lưu người dùng thất bại");
     } finally {
       setLoading(false);
     }
@@ -145,7 +145,7 @@ function UserFormPage() {
   if (loading && isEditMode) {
     return (
       <MainLayout>
-        <p>Đang tải thông tin user...</p>
+        <p>Đang tải thông tin người dùng...</p>
       </MainLayout>
     );
   }
@@ -190,7 +190,7 @@ function UserFormPage() {
           />
 
           <Input
-            label="Phone"
+            label="Số điện thoại"
             name="phone"
             value={formData.phone}
             placeholder="Nhập số điện thoại"
@@ -211,7 +211,7 @@ function UserFormPage() {
           )}
 
           <div className="form-group">
-            <label className="form-label">Role</label>
+            <label className="form-label">Vai trò</label>
             <select
               className="form-select"
               name="role"
@@ -227,7 +227,7 @@ function UserFormPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Status</label>
+            <label className="form-label">Trạng thái</label>
             <select
               className="form-select"
               name="status"

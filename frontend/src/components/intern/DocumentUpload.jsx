@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+﻿import { useState, useRef } from "react";
 import { Button } from "../common";
 import { documentApi } from "../../api/documentApi";
 import { getApiErrorMessage } from "../../utils/apiErrorMessage";
@@ -28,7 +28,7 @@ function DocumentUpload({ internProfileId, onUploaded }) {
     const extension = getFileExtension(file.name);
 
     if (!ALLOWED_EXTENSIONS.includes(extension)) {
-      return "Chỉ cho phép upload file PDF, DOC, DOCX";
+      return "Chỉ cho phép tải file PDF, DOC, DOCX lên";
     }
 
     if (file.size > MAX_FILE_SIZE) {
@@ -77,7 +77,7 @@ function DocumentUpload({ internProfileId, onUploaded }) {
     event.preventDefault();
 
     if (!internProfileId) {
-      setErrorMessage("Cần lưu hồ sơ trước khi upload tài liệu");
+      setErrorMessage("Cần lưu hồ sơ trước khi tải tài liệu lên");
       return;
     }
 
@@ -100,11 +100,11 @@ function DocumentUpload({ internProfileId, onUploaded }) {
       const response = await documentApi.uploadDocument(formData);
 
       if (!response.success) {
-        setErrorMessage(response.message || "Upload tài liệu thất bại");
+        setErrorMessage(response.message || "Tải tài liệu lên thất bại");
         return;
       }
 
-      setSuccessMessage("Upload tài liệu thành công!");
+      setSuccessMessage("Tải tài liệu lên thành công!");
       setSelectedFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -114,7 +114,7 @@ function DocumentUpload({ internProfileId, onUploaded }) {
         onUploaded(response.data);
       }
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "Upload tài liệu thất bại"));
+      setErrorMessage(getApiErrorMessage(error, "Tải tài liệu lên thất bại"));
     } finally {
       setUploading(false);
     }
@@ -126,7 +126,7 @@ function DocumentUpload({ internProfileId, onUploaded }) {
 
   return (
     <div className="document-upload-card">
-      <h3 className="upload-card-title">Upload tài liệu</h3>
+      <h3 className="upload-card-title">Tải tài liệu lên</h3>
       <p className="helper-text">
         Chỉ hỗ trợ file PDF, DOC, DOCX. Dung lượng tối đa 5MB/file.
       </p>
@@ -197,10 +197,10 @@ function DocumentUpload({ internProfileId, onUploaded }) {
           {uploading ? (
             <>
               <span className="btn-loading-spinner" />
-              Đang upload...
+              Đang tải lên...
             </>
           ) : (
-            "Bắt đầu upload"
+            "Bắt đầu tải lên"
           )}
         </Button>
       </form>

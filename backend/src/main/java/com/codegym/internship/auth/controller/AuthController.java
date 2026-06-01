@@ -24,18 +24,18 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
-        return ApiResponse.success("Login successful", response);
+        return ApiResponse.success("Đăng nhập thành công", response);
     }
 
     @GetMapping("/me")
     public ApiResponse<CurrentUserResponse> me(Authentication authentication) {
         String email = authentication.getName();
         CurrentUserResponse response = authService.getCurrentUser(email);
-        return ApiResponse.success("Get current user successfully", response);
+        return ApiResponse.success("Lấy thông tin người dùng hiện tại thành công", response);
     }
 
     @PostMapping("/logout")
     public ApiResponse<Void> logout() {
-        return ApiResponse.success("Logout successful", null);
+        return ApiResponse.success("Đăng xuất thành công", null);
     }
 }

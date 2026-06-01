@@ -14,32 +14,32 @@ import lombok.Setter;
 @Setter
 public class InternProfileUpdateRequest {
 
-    @NotBlank(message = "Full name is required")
-    @Size(max = 100, message = "Full name must not exceed 100 characters")
+    @NotBlank(message = "Vui lòng nhập họ tên")
+    @Size(max = 100, message = "Họ tên không được vượt quá 100 ký tự")
     private String fullName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email format is invalid")
-    @Size(max = 150, message = "Email must not exceed 150 characters")
+    @NotBlank(message = "Vui lòng nhập email")
+    @Email(message = "Email không đúng định dạng")
+    @Size(max = 150, message = "Email không được vượt quá 150 ký tự")
     private String email;
 
-    @NotBlank(message = "Phone is required")
-    @Pattern(regexp = "^\\d{10}$", message = "Phone format is invalid")
+    @NotBlank(message = "Vui lòng nhập số điện thoại")
+    @Pattern(regexp = "^\\d{10}$", message = "Số điện thoại phải gồm 10 chữ số")
     private String phone;
 
-    @NotBlank(message = "School is required")
-    @Size(max = 150, message = "School must not exceed 150 characters")
+    @NotBlank(message = "Vui lòng nhập trường học")
+    @Size(max = 150, message = "Tên trường không được vượt quá 150 ký tự")
     private String school;
 
-    @NotBlank(message = "Major is required")
-    @Size(max = 150, message = "Major must not exceed 150 characters")
+    @NotBlank(message = "Vui lòng nhập ngành học")
+    @Size(max = 150, message = "Ngành học không được vượt quá 150 ký tự")
     private String major;
 
-    @NotBlank(message = "Academic year is required")
-    @Size(max = 50, message = "Academic year must not exceed 50 characters")
+    @NotBlank(message = "Vui lòng nhập năm học")
+    @Size(max = 50, message = "Năm học không được vượt quá 50 ký tự")
     private String academicYear;
 
-    @DecimalMin(value = "0.0", message = "GPA must be between 0.0 and 4.0")
-    @DecimalMax(value = "4.0", message = "GPA must be between 0.0 and 4.0")
+    @DecimalMin(value = "0.0", message = "GPA phải nằm trong khoảng 0.0 đến 4.0")
+    @DecimalMax(value = "4.0", message = "GPA phải nằm trong khoảng 0.0 đến 4.0")
     private BigDecimal gpa;
 }

@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+﻿import { Navigate, Route, Routes } from "react-router-dom";
 
 import LoginPage from "../pages/auth/LoginPage";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
@@ -145,7 +145,7 @@ function AppRoutes() {
         }
       />
 
-      <Route path="*" element={<h2>404 - Page Not Found</h2>} />
+      <Route path="*" element={<h2>404 - Không tìm thấy trang</h2>} />
     </Routes>
   );
 }

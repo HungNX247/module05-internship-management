@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ⚠️ Technical debt:
  * Hiện token và currentUser được lưu trong localStorage để phục vụ demo MVP.
  * Production cần chuyển sang HttpOnly cookie + refresh token để giảm rủi ro XSS.

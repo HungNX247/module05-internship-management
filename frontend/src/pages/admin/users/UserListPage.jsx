@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Button, Pagination } from "../../../components/common";
@@ -38,7 +38,7 @@ function UserListPage() {
       });
 
       if (!response.success) {
-        setErrorMessage(response.message || "Không tải được danh sách user");
+        setErrorMessage(response.message || "Không tải được danh sách người dùng");
         return;
       }
 
@@ -48,7 +48,7 @@ function UserListPage() {
     } catch (error) {
       setErrorMessage(
         error.response?.data?.message ||
-        "Không tải được danh sách user. Vui lòng thử lại."
+        "Không tải được danh sách người dùng. Vui lòng thử lại."
       );
     } finally {
       setLoading(false);
@@ -77,7 +77,7 @@ function UserListPage() {
   async function handleToggleStatus(user) {
     const nextStatus = user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
     const actionText = nextStatus === "INACTIVE" ? "khóa" : "mở khóa";
-    const confirmed = window.confirm(`Bạn có chắc muốn ${actionText} user này?`);
+    const confirmed = window.confirm(`Bạn có chắc muốn ${actionText} người dùng này?`);
     if (!confirmed) return;
 
     try {
@@ -91,7 +91,7 @@ function UserListPage() {
         return;
       }
 
-      setSuccessMessage("Cập nhật trạng thái user thành công");
+      setSuccessMessage("Cập nhật trạng thái người dùng thành công");
       loadUsers(page);
     } catch (error) {
       setErrorMessage(
@@ -111,7 +111,7 @@ function UserListPage() {
             </p>
           </div>
           <Button onClick={() => navigate("/admin/users/create")}>
-            + Thêm user
+            + Thêm người dùng
           </Button>
         </div>
 

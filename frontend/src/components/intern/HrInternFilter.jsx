@@ -36,9 +36,9 @@ function HrInternFilter({
         <label>Trạng thái</label>
         <select value={status} onChange={(e) => onStatusChange(e.target.value)}>
           <option value="">Tất cả trạng thái</option>
-          <option value="DRAFT">DRAFT</option>
-          <option value="SUBMITTED">SUBMITTED</option>
-          <option value="PENDING">PENDING</option>
+          <option value="DRAFT">Bản nháp</option>
+          <option value="PENDING">Chờ duyệt</option>
+          <option value="SUBMITTED">Đã duyệt</option>
         </select>
       </div>
 

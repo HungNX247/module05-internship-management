@@ -22,7 +22,7 @@ public class UserAdminController {
             @Valid @RequestBody UserCreateRequest request
     ) {
         UserResponse response = userAdminService.createUser(request);
-        return ApiResponse.success("Create user successfully", response);
+        return ApiResponse.success("Tạo người dùng thành công", response);
     }
 
     @GetMapping
@@ -41,14 +41,14 @@ public class UserAdminController {
                 status
         );
 
-        return ApiResponse.success("Get users successfully", response);
+        return ApiResponse.success("Lấy danh sách người dùng thành công", response);
     }
 
 
     @GetMapping("/{id}")
     public ApiResponse<UserResponse> getUserDetail(@PathVariable Long id) {
         UserResponse response = userAdminService.getUserDetail(id);
-        return ApiResponse.success("Get user detail successfully", response);
+        return ApiResponse.success("Lấy chi tiết người dùng thành công", response);
     }
 
     @PutMapping("/{id}")
@@ -57,7 +57,7 @@ public class UserAdminController {
             @Valid @RequestBody UserUpdateRequest request
     ) {
         UserResponse response = userAdminService.updateUser(id, request);
-        return ApiResponse.success("Update user successfully", response);
+        return ApiResponse.success("Cập nhật người dùng thành công", response);
     }
 
     @PatchMapping("/{id}/status")
@@ -66,6 +66,6 @@ public class UserAdminController {
             @Valid @RequestBody UserStatusRequest request
     ) {
         UserResponse response = userAdminService.updateStatus(id, request);
-        return ApiResponse.success("Update user status successfully", response);
+        return ApiResponse.success("Cập nhật trạng thái người dùng thành công", response);
     }
 }

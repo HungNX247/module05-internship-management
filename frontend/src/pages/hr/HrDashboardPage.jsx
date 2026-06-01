@@ -1,4 +1,4 @@
-import MainLayout from "../../layouts/MainLayout";
+﻿import MainLayout from "../../layouts/MainLayout";
 import "../../styles/dashboard.css";
 
 function HrDashboardPage() {
@@ -7,69 +7,69 @@ function HrDashboardPage() {
       <div className="dashboard-container">
         <header className="dashboard-header">
           <div>
-            <h1>Recruitment Hub</h1>
-            <p>Welcome back! You have 3 new internship applications to review.</p>
+            <h1>Trung tâm tuyển dụng</h1>
+            <p>Chào mừng quay lại! Bạn có 3 hồ sơ thực tập mới cần xem xét.</p>
           </div>
           <button className="badge badge-primary" style={{ border: 'none', cursor: 'pointer', padding: '0.5rem 1rem' }}>
-            + Post New Vacancy
+            + Đăng vị trí mới
           </button>
         </header>
 
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}>👨‍🎓</div>
+            <div className="stat-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}>🎓</div>
             <div className="stat-value">85</div>
-            <div className="stat-label">Active Interns</div>
-            <div className="stat-trend trend-up">↑ 8 this month</div>
+            <div className="stat-label">Thực tập sinh đang hoạt động</div>
+            <div className="stat-trend trend-up">↑ 8 trong tháng này</div>
           </div>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: '#dcfce7', color: '#10b981' }}>🏢</div>
             <div className="stat-value">24</div>
-            <div className="stat-label">Partner Companies</div>
-            <div className="stat-trend">Stable</div>
+            <div className="stat-label">Công ty đối tác</div>
+            <div className="stat-trend">Ổn định</div>
           </div>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: '#fef9c3', color: '#f59e0b' }}>📋</div>
             <div className="stat-value">12</div>
-            <div className="stat-label">Open Vacancies</div>
-            <div className="stat-trend trend-up">↑ 2 new today</div>
+            <div className="stat-label">Vị trí đang mở</div>
+            <div className="stat-trend trend-up">↑ 2 vị trí mới hôm nay</div>
           </div>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: '#fee2e2', color: '#ef4444' }}>⌛</div>
-            <div className="stat-value">3.2 days</div>
-            <div className="stat-label">Avg. Hire Time</div>
-            <div className="stat-trend trend-down">↓ 0.5 days</div>
+            <div className="stat-value">3.2 ngày</div>
+            <div className="stat-label">Thời gian tuyển trung bình</div>
+            <div className="stat-trend trend-down">↓ 0.5 ngày</div>
           </div>
         </div>
 
         <div className="dashboard-main-grid">
           <div className="card">
             <div className="card-header">
-              <h3>Upcoming Interviews</h3>
-              <a href="#" style={{ fontSize: '0.875rem' }}>Full schedule</a>
+              <h3>Lịch phỏng vấn sắp tới</h3>
+              <a href="#" style={{ fontSize: '0.875rem' }}>Xem lịch đầy đủ</a>
             </div>
             <div className="card-body">
               <ul className="activity-list">
                 <li className="activity-item">
                   <div className="activity-dot" style={{ background: '#4f46e5' }}></div>
                   <div className="activity-content">
-                    <div className="activity-title">Interview with Tran Van C - Frontend Intern</div>
-                    <div className="activity-time">Today, 2:00 PM • Google Meet</div>
+                    <div className="activity-title">Phỏng vấn Tran Van C - Thực tập sinh Frontend</div>
+                    <div className="activity-time">Hôm nay, 14:00 • Google Meet</div>
                   </div>
-                  <span className="badge badge-primary">Soon</span>
+                  <span className="badge badge-primary">Sắp diễn ra</span>
                 </li>
                 <li className="activity-item">
                   <div className="activity-dot" style={{ background: '#10b981' }}></div>
                   <div className="activity-content">
-                    <div className="activity-title">Final Review: Le Thi D - Backend Intern</div>
-                    <div className="activity-time">Tomorrow, 10:30 AM • Room 302</div>
+                    <div className="activity-title">Đánh giá cuối: Le Thi D - Thực tập sinh Backend</div>
+                    <div className="activity-time">Ngày mai, 10:30 • Phòng 302</div>
                   </div>
                 </li>
                 <li className="activity-item">
                   <div className="activity-dot" style={{ background: '#f59e0b' }}></div>
                   <div className="activity-content">
-                    <div className="activity-title">HR sync with Mentor: Hoang Anh</div>
-                    <div className="activity-time">May 16, 9:00 AM • Zoom</div>
+                    <div className="activity-title">HR trao đổi với mentor: Hoang Anh</div>
+                    <div className="activity-time">16/05, 09:00 • Zoom</div>
                   </div>
                 </li>
               </ul>
@@ -78,35 +78,35 @@ function HrDashboardPage() {
 
           <div className="card">
             <div className="card-header">
-              <h3>HR Quick Tools</h3>
+              <h3>Công cụ nhanh cho HR</h3>
             </div>
             <div className="card-body">
               <div className="quick-actions">
                 <div className="action-btn">
                   <span>📄</span>
-                  Contracts
+                  Hợp đồng
                 </div>
                 <div className="action-btn">
                   <span>📅</span>
-                  Events
+                  Sự kiện
                 </div>
                 <div className="action-btn">
                   <span>📈</span>
-                  Reports
+                  Báo cáo
                 </div>
                 <div className="action-btn">
                   <span>💡</span>
-                  Talent Pool
+                  Nguồn ứng viên
                 </div>
               </div>
               
               <div style={{ marginTop: '2rem' }}>
-                <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Intern Satisfaction</h4>
+                <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Mức độ hài lòng của thực tập sinh</h4>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#10b981' }}>4.8</div>
                   <div style={{ color: '#64748b', fontSize: '0.875rem' }}>
-                    Out of 5.0<br/>
-                    Based on 42 reviews
+                    Trên thang 5.0<br/>
+                    Dựa trên 42 đánh giá
                   </div>
                 </div>
               </div>

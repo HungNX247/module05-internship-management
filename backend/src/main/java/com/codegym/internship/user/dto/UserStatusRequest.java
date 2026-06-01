@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 public class UserStatusRequest {
 
-    @NotNull(message = "Status is required")
+    @NotNull(message = "Vui lòng chọn trạng thái")
     private UserStatus status;
 }

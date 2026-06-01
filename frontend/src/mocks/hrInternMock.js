@@ -1,4 +1,4 @@
-import { getCurrentUser } from "../services/tokenService";
+﻿import { getCurrentUser } from "../services/tokenService";
 
 const STATIC_INTERNS = [
   {
@@ -105,15 +105,15 @@ export function throwMockApiErrorIfConfigured() {
 
   const status = Number(code);
   const messages = {
-    401: "Unauthorized — phiên đăng nhập không hợp lệ (mock test)",
-    403: "Forbidden — không có quyền HR (mock test)",
-    500: "Internal Server Error — lỗi server (mock test)",
+    401: "Chưa xác thực - phiên đăng nhập không hợp lệ (mock test)",
+    403: "Không có quyền truy cập HR (mock test)",
+    500: "Lỗi hệ thống - lỗi server (mock test)",
   };
 
-  const error = new Error(messages[status] || "Mock API error");
+  const error = new Error(messages[status] || "Lỗi API mock");
   error.response = {
     status,
-    data: { message: messages[status] || "Mock API error" },
+    data: { message: messages[status] || "Lỗi API mock" },
   };
   throw error;
 }
@@ -173,7 +173,7 @@ export function updateMockIntern(id, payload) {
   }
 
   const profile = interns[idx];
-  if (profile.status === "SUBMITTED") {
+  if (profile.status !== "DRAFT") {
     return { success: false, message: "Hồ sơ đã nộp không thể chỉnh sửa!" };
   }
 
@@ -203,7 +203,7 @@ export function submitMockIntern(id) {
   const profile = interns[idx];
   const updatedProfile = {
     ...profile,
-    status: "SUBMITTED",
+    status: "PENDING",
     updatedAt: new Date().toISOString(),
   };
 
@@ -223,7 +223,7 @@ export function uploadMockDocument(formData) {
   const documentType = formData.get("documentType");
 
   if (!internProfileId) {
-    return { success: false, message: "Cần lưu hồ sơ trước khi upload tài liệu" };
+    return { success: false, message: "Cần lưu hồ sơ trước khi tải tài liệu lên" };
   }
 
   const docs = getStoredDocuments();
@@ -246,7 +246,7 @@ export function uploadMockDocument(formData) {
 
   return {
     success: true,
-    message: "Upload tài liệu thành công (mock)",
+    message: "Tải tài liệu lên thành công (mock)",
     data: newDoc,
   };
 }
@@ -274,7 +274,7 @@ export function filterMockInterns({ school, major, status, page = 0, size = 10 }
 
   return {
     success: true,
-    message: "Get interns successfully (mock)",
+    message: "Lấy danh sách thực tập sinh thành công (mock)",
     data: {
       items: paged,
       page,
@@ -289,11 +289,11 @@ export function getMockInternById(id) {
   const interns = getStoredInterns();
   const intern = interns.find((i) => String(i.id) === String(id));
   if (!intern) {
-    return { success: false, message: "Không tìm thấy hồ sơ intern (mock)" };
+    return { success: false, message: "Không tìm thấy hồ sơ thực tập sinh (mock)" };
   }
   return {
     success: true,
-    message: "Get intern successfully (mock)",
+    message: "Lấy thông tin thực tập sinh thành công (mock)",
     data: intern,
   };
 }
@@ -303,7 +303,7 @@ export function getMockDocumentsByInternId(internId) {
   const list = docs[internId] || [];
   return {
     success: true,
-    message: "Get documents successfully (mock)",
+    message: "Lấy danh sách tài liệu thành công (mock)",
     data: list,
   };
 }

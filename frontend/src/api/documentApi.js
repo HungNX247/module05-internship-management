@@ -13,4 +13,9 @@ export const documentApi = {
 
   getDocumentsByInternProfileId: (internProfileId) =>
     axiosClient.get(`/interns/${internProfileId}/documents`),
+
+  downloadDocument: (documentId) =>
+    axiosClient.get(`/documents/${documentId}/download`, {
+      responseType: "blob",
+    }),
 };

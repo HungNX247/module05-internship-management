@@ -2,15 +2,22 @@ package com.codegym.internship.intern.controller;
 
 import com.codegym.internship.common.response.ApiResponse;
 import com.codegym.internship.intern.dto.InternProfileCreateRequest;
+import com.codegym.internship.intern.dto.InternProfilePageResponse;
 import com.codegym.internship.intern.dto.InternProfileResponse;
 import com.codegym.internship.intern.dto.InternProfileUpdateRequest;
+import com.codegym.internship.intern.entity.InternProfileStatus;
 import com.codegym.internship.intern.service.InternProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-import com.codegym.internship.intern.dto.InternProfilePageResponse;
-import com.codegym.internship.intern.entity.InternProfileStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/interns")
@@ -24,7 +31,7 @@ public class InternProfileController {
             @Valid @RequestBody InternProfileCreateRequest request
     ) {
         InternProfileResponse response = internProfileService.createProfile(request);
-        return ApiResponse.success("Create intern profile successfully", response);
+        return ApiResponse.success("Tạo hồ sơ thực tập sinh thành công", response);
     }
 
     @PutMapping("/{id}")
@@ -33,13 +40,37 @@ public class InternProfileController {
             @Valid @RequestBody InternProfileUpdateRequest request
     ) {
         InternProfileResponse response = internProfileService.updateProfile(id, request);
-        return ApiResponse.success("Update intern profile successfully", response);
+        return ApiResponse.success("Cập nhật hồ sơ thực tập sinh thành công", response);
+    }
+
+    @GetMapping("/me")
+    public ApiResponse<InternProfileResponse> getMyProfile() {
+        InternProfileResponse response = internProfileService.getMyProfile();
+        return ApiResponse.success("Lấy hồ sơ thực tập sinh của tôi thành công", response);
+    }
+
+    @PostMapping("/{id}/submit")
+    public ApiResponse<InternProfileResponse> submitProfile(@PathVariable Long id) {
+        InternProfileResponse response = internProfileService.submitProfile(id);
+        return ApiResponse.success("Nộp hồ sơ thực tập sinh thành công. Hồ sơ đang chờ duyệt", response);
+    }
+
+    @PatchMapping("/{id}/approve")
+    public ApiResponse<InternProfileResponse> approveProfile(@PathVariable Long id) {
+        InternProfileResponse response = internProfileService.approveProfile(id);
+        return ApiResponse.success("Duyệt hồ sơ thực tập sinh thành công", response);
+    }
+
+    @PatchMapping("/{id}/reject")
+    public ApiResponse<InternProfileResponse> rejectProfile(@PathVariable Long id) {
+        InternProfileResponse response = internProfileService.rejectProfile(id);
+        return ApiResponse.success("Từ chối hồ sơ thực tập sinh thành công", response);
     }
 
     @GetMapping("/{id}")
     public ApiResponse<InternProfileResponse> getProfileDetail(@PathVariable Long id) {
         InternProfileResponse response = internProfileService.getProfileDetail(id);
-        return ApiResponse.success("Get intern profile successfully", response);
+        return ApiResponse.success("Lấy hồ sơ thực tập sinh thành công", response);
     }
 
     @GetMapping
@@ -58,6 +89,6 @@ public class InternProfileController {
                 status
         );
 
-        return ApiResponse.success("Get intern profiles successfully", response);
+        return ApiResponse.success("Lấy danh sách hồ sơ thực tập sinh thành công", response);
     }
 }
