@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import MainLayout from "../../layouts/MainLayout";
 import InternProfileForm from "../../components/intern/InternProfileForm";
 import DocumentUpload from "../../components/intern/DocumentUpload";
 import { Button } from "../../components/common";
 import { internApi } from "../../api/internApi";
 import { documentApi } from "../../api/documentApi";
-import { isHrInternMockEnabled } from "../../mocks/hrInternMock";
 import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 import { mapDocuments } from "../../utils/mapDocument";
 import "../../styles/intern-profile.css";
@@ -83,28 +82,7 @@ function InternApplyPage() {
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Load existing profile if any
-  async function loadExistingProfile() {
-    try {
-      setFetching(true);
-      setApiError("");
-      const response = await internApi.getMyProfile();
-      if (response.success && response.data) {
-        setProfile(response.data);
-        setFormData(toFormData(response.data));
-        await loadDocuments(response.data.id);
-      }
-    } catch (error) {
-      // Don't show error if it's just that the profile doesn't exist yet
-      if (error.response?.status !== 404) {
-        setApiError(getApiErrorMessage(error, "Không thể tải thông tin hồ sơ hiện tại."));
-      }
-    } finally {
-      setFetching(false);
-    }
-  }
-
-  async function loadDocuments(profileId) {
+  const loadDocuments = useCallback(async (profileId) => {
     if (!profileId) return;
     try {
       const response = await documentApi.getDocumentsByInternProfileId(profileId);
@@ -117,11 +95,40 @@ function InternApplyPage() {
     } catch {
       setDocuments([]);
     }
-  }
+  }, []);
+
+  const loadExistingProfile = useCallback(async () => {
+    try {
+      setFetching(true);
+      setApiError("");
+      const response = await internApi.getMyProfile();
+      if (response.success && response.data) {
+        setProfile(response.data);
+        setFormData(toFormData(response.data));
+        await loadDocuments(response.data.id);
+      }
+    } catch (error) {
+      if (error.response?.status !== 404) {
+        setApiError(getApiErrorMessage(error, "Không thể tải thông tin hồ sơ hiện tại."));
+      }
+    } finally {
+      setFetching(false);
+    }
+  }, [loadDocuments]);
 
   useEffect(() => {
-    loadExistingProfile();
-  }, []);
+    let isMounted = true;
+    const fetchInitialData = async () => {
+      await Promise.resolve();
+      if (isMounted) {
+        loadExistingProfile();
+      }
+    };
+    fetchInitialData();
+    return () => {
+      isMounted = false;
+    };
+  }, [loadExistingProfile]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -167,14 +174,11 @@ function InternApplyPage() {
   }
 
   async function handleSubmitProfile() {
-    if (!profile?.id) {
-      setApiError("Cần tạo hồ sơ trước khi nộp");
-      return;
-    }
+    const nextErrors = validateProfileForm(formData);
+    setErrors(nextErrors);
 
-    const hasCV = documents.some((d) => d.documentType === "CV");
-    if (!hasCV) {
-      setApiError("Vui lòng upload CV của bạn trước khi nộp hồ sơ!");
+    if (Object.keys(nextErrors).length > 0) {
+      setApiError("Vui lòng điền đầy đủ và đúng thông tin trước khi nộp.");
       return;
     }
 
@@ -183,7 +187,7 @@ function InternApplyPage() {
       setApiError("");
       setSuccessMessage("");
 
-      const response = await internApi.submitProfile(profile.id);
+      const response = await internApi.submitProfile(buildProfilePayload(formData));
 
       if (!response.success) {
         setApiError(response.message || "Nộp hồ sơ thất bại");
@@ -191,37 +195,13 @@ function InternApplyPage() {
       }
 
       setProfile(response.data);
-      setSuccessMessage("Nộp hồ sơ thực tập thành công! HR sẽ sớm xét duyệt hồ sơ của bạn.");
+      setSuccessMessage("Nộp hồ sơ thực tập thành công! Bạn có thể tiếp tục upload tài liệu.");
+      await loadDocuments(response.data.id);
     } catch (error) {
       setApiError(getApiErrorMessage(error, "Nộp hồ sơ thất bại"));
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function handleResetMockProfile() {
-    if (!profile?.id) return;
-
-    const stored = localStorage.getItem("MOCK_INTERNS");
-    if (stored) {
-      const list = JSON.parse(stored);
-      const updated = list.filter((i) => String(i.id) !== String(profile.id));
-      localStorage.setItem("MOCK_INTERNS", JSON.stringify(updated));
-    }
-
-    const storedDocs = localStorage.getItem("MOCK_DOCUMENTS");
-    if (storedDocs) {
-      const docs = JSON.parse(storedDocs);
-      delete docs[profile.id];
-      localStorage.setItem("MOCK_DOCUMENTS", JSON.stringify(docs));
-    }
-
-    setProfile(null);
-    setFormData(initialFormData);
-    setDocuments([]);
-    setErrors({});
-    setSuccessMessage("Đã reset hồ sơ mock thành công. Bạn có thể test lại từ đầu.");
-    setApiError("");
   }
 
   if (fetching) {
@@ -334,40 +314,15 @@ function InternApplyPage() {
               </span>
             </div>
 
-            {isHrInternMockEnabled && profile && (
-              <button
-                type="button"
-                onClick={handleResetMockProfile}
-                style={{
-                  width: "100%",
-                  marginTop: "-10px",
-                  marginBottom: "20px",
-                  padding: "10px",
-                  background: "#fee2e2",
-                  color: "#dc2626",
-                  border: "1px solid #fecaca",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  fontWeight: "700",
-                  cursor: "pointer",
-                  transition: "background 0.2s"
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = "#fca5a5"}
-                onMouseOut={(e) => e.currentTarget.style.background = "#fee2e2"}
-              >
-                🗑️ Reset/Xóa hồ sơ để test lại
-              </button>
-            )}
-
-            {profile?.status !== "SUBMITTED" ? (
+            {profile ? (
               <DocumentUpload
                 internProfileId={profile?.id}
                 onUploaded={() => loadDocuments(profile.id)}
               />
             ) : (
               <div className="upload-disabled-box">
-                <span className="lock-icon">🔒</span>
-                <p>Không thể upload thêm tài liệu sau khi đã nộp hồ sơ.</p>
+                <span className="lock-icon">📝</span>
+                <p>Vui lòng nộp hoặc lưu hồ sơ nháp trước khi upload tài liệu.</p>
               </div>
             )}
 
@@ -400,19 +355,14 @@ function InternApplyPage() {
                   type="button"
                   variant="primary"
                   className="full-width-btn"
-                  disabled={!profile?.id || submitting || documents.length === 0}
+                  disabled={submitting}
                   onClick={handleSubmitProfile}
                 >
                   {submitting ? "Đang gửi hồ sơ..." : "Nộp hồ sơ chính thức"}
                 </Button>
                 {!profile?.id && (
                   <p className="button-helper-warning">
-                    * Bạn cần điền thông tin và lưu hồ sơ nháp trước.
-                  </p>
-                )}
-                {profile?.id && documents.length === 0 && (
-                  <p className="button-helper-warning">
-                    * Bạn cần upload ít nhất một tài liệu CV để có thể nộp.
+                    * Bạn có thể nộp trực tiếp hoặc lưu bản nháp trước.
                   </p>
                 )}
               </div>

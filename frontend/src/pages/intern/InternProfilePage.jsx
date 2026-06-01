@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "../../layouts/MainLayout";
 import InternProfileForm from "../../components/intern/InternProfileForm";
 import DocumentUpload from "../../components/intern/DocumentUpload";
 import { internApi } from "../../api/internApi";
 import { documentApi } from "../../api/documentApi";
-import { isHrInternMockEnabled } from "../../mocks/hrInternMock";
 import { getApiErrorMessage } from "../../utils/apiErrorMessage";
 import { mapDocuments } from "../../utils/mapDocument";
 import "../../styles/intern-profile.css";
@@ -72,11 +71,26 @@ function InternProfilePage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  async function loadProfile() {
+  const loadDocuments = useCallback(async (profileId) => {
+    if (!profileId) return;
+
+    try {
+      const response = await documentApi.getDocumentsByInternProfileId(profileId);
+      if (response.success) {
+        const raw = Array.isArray(response.data)
+          ? response.data
+          : response.data?.items || [];
+        setDocuments(mapDocuments(raw));
+      }
+    } catch {
+      setDocuments([]);
+    }
+  }, []);
+
+  const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
       setErrorMessage("");
-
       const response = await internApi.getMyProfile();
 
       if (!response.success) {
@@ -104,27 +118,21 @@ function InternProfilePage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function loadDocuments(profileId) {
-    if (!profileId) return;
-
-    try {
-      const response = await documentApi.getDocumentsByInternProfileId(profileId);
-      if (response.success) {
-        const raw = Array.isArray(response.data)
-          ? response.data
-          : response.data?.items || [];
-        setDocuments(mapDocuments(raw));
-      }
-    } catch {
-      setDocuments([]);
-    }
-  }
+  }, [loadDocuments]);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    let isMounted = true;
+    const fetchInitialData = async () => {
+      await Promise.resolve();
+      if (isMounted) {
+        loadProfile();
+      }
+    };
+    fetchInitialData();
+    return () => {
+      isMounted = false;
+    };
+  }, [loadProfile]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -165,31 +173,6 @@ function InternProfilePage() {
     } finally {
       setSaving(false);
     }
-  }
-
-  function handleResetMockProfile() {
-    if (!profile?.id) return;
-
-    const stored = localStorage.getItem("MOCK_INTERNS");
-    if (stored) {
-      const list = JSON.parse(stored);
-      const updated = list.filter((i) => String(i.id) !== String(profile.id));
-      localStorage.setItem("MOCK_INTERNS", JSON.stringify(updated));
-    }
-
-    const storedDocs = localStorage.getItem("MOCK_DOCUMENTS");
-    if (storedDocs) {
-      const docs = JSON.parse(storedDocs);
-      delete docs[profile.id];
-      localStorage.setItem("MOCK_DOCUMENTS", JSON.stringify(docs));
-    }
-
-    setProfile(null);
-    setFormData(null);
-    setDocuments([]);
-    setErrors({});
-    setSuccessMessage("Đã reset hồ sơ mock thành công. Bạn có thể test lại từ đầu.");
-    setErrorMessage("");
   }
 
   if (loading) {
@@ -236,25 +219,6 @@ function InternProfilePage() {
               <div className="card-header-flex">
                 <h3 className="card-section-title">Thông tin học tập</h3>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  {isHrInternMockEnabled && (
-                    <button
-                      type="button"
-                      onClick={handleResetMockProfile}
-                      style={{
-                        padding: "5px 10px",
-                        background: "#fee2e2",
-                        color: "#dc2626",
-                        border: "1px solid #fecaca",
-                        borderRadius: "6px",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        cursor: "pointer"
-                      }}
-                      title="Xóa hồ sơ này để test lại luồng ứng tuyển từ đầu"
-                    >
-                      🗑️ Reset
-                    </button>
-                  )}
                   <span className={`status-badge-val status--${profile.status.toLowerCase()}`}>
                     {profile.status === "SUBMITTED"
                       ? "Đã nộp"
@@ -284,20 +248,10 @@ function InternProfilePage() {
 
             {/* Column 2: Documents list */}
             <div className="intern-card">
-              {!isSubmitted ? (
-                <DocumentUpload
-                  internProfileId={profile.id}
-                  onUploaded={() => loadDocuments(profile.id)}
-                />
-              ) : (
-                <div className="lock-document-card">
-                  <h3 className="upload-card-title">Upload tài liệu</h3>
-                  <div className="upload-disabled-box">
-                    <span className="lock-icon">🔒</span>
-                    <p>Hồ sơ đã khóa. Không thể tải lên thêm tài liệu mới.</p>
-                  </div>
-                </div>
-              )}
+              <DocumentUpload
+                internProfileId={profile.id}
+                onUploaded={() => loadDocuments(profile.id)}
+              />
 
               <div className="uploaded-list-section" style={{ marginTop: "24px" }}>
                 <h3 className="card-section-title">Danh sách tài liệu đã nộp</h3>
