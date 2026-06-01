@@ -275,15 +275,6 @@ function InternProfilePage() {
                             </span>
                           </div>
                         </div>
-                        <a
-                          href={doc.fileUrl || "#"}
-                          onClick={(e) => !doc.fileUrl && e.preventDefault()}
-                          className={`download-doc-btn ${!doc.fileUrl ? "disabled" : ""}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Tải về
-                        </a>
                       </li>
                     ))}
                   </ul>

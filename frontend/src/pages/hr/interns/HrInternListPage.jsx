@@ -33,13 +33,15 @@ function HrInternListPage() {
       setLoading(true);
       setErrorMessage("");
 
-      const params = {
-        page: nextPage,
-        size,
-        school: filters.school || undefined,
-        major: filters.major || undefined,
-        status: filters.status || undefined,
-      };
+      const params = { page: nextPage, size };
+
+      const schoolFilter = filters.school?.trim();
+      const majorFilter = filters.major?.trim();
+      const statusFilter = filters.status?.trim();
+
+      if (schoolFilter) params.school = schoolFilter;
+      if (majorFilter) params.major = majorFilter;
+      if (statusFilter) params.status = statusFilter;
 
       const response = await internApi.getInterns(params);
 
@@ -53,8 +55,12 @@ function HrInternListPage() {
       const data = response.data || {};
 
       setInterns(data.items || data.content || []);
-      setPage(data.page ?? nextPage);
-      setTotalPages(data.totalPages ?? data.totalElements ?? 0);
+      setPage(typeof data.page === "number" ? data.page : nextPage);
+      setTotalPages(
+        typeof data.totalPages === "number"
+          ? data.totalPages
+          : Math.ceil((data.totalItems ?? data.totalElements ?? 0) / size) || 0
+      );
     } catch (error) {
       setInterns([]);
       setTotalPages(0);
