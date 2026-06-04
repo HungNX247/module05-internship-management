@@ -1,5 +1,6 @@
-package com.codegym.internship.intern.entity;
+package com.codegym.internship.mentor.entity;
 
+import com.codegym.internship.department.entity.Department;
 import com.codegym.internship.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,29 +11,26 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
-
-import com.codegym.internship.mentor.entity.Mentor;
-import jakarta.persistence.ManyToOne;
 
 @Getter
 @Setter
 @Entity
 @Table(
-        name = "intern_profiles",
+        name = "mentors",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_intern_profiles_user", columnNames = "user_id")
+                @UniqueConstraint(name = "uk_mentors_user", columnNames = "user_id")
         }
 )
-public class InternProfile {
+public class Mentor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,40 +40,28 @@ public class InternProfile {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "full_name", nullable = false, length = 100)
-    private String fullName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
 
-    @Column(nullable = false, length = 150)
-    private String email;
+    @Column(length = 100)
+    private String position;
 
-    @Column(nullable = false, length = 10)
-    private String phone;
+    @Column(length = 255)
+    private String expertise;
 
-    @Column(nullable = false, length = 150)
-    private String school;
-
-    @Column(nullable = false, length = 150)
-    private String major;
-
-    @Column(name = "academic_year", nullable = false, length = 50)
-    private String academicYear;
-
-    @Column(precision = 4, scale = 2)
-    private BigDecimal gpa;
+    @Column(name = "max_interns")
+    private Integer maxInterns = 5;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private InternProfileStatus status = InternProfileStatus.DRAFT;
+    private MentorStatus status = MentorStatus.ACTIVE;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    // Thêm field này trong class InternProfile
-    @Column(name = "reject_reason", length = 500)
-    private String rejectReason;
 
     @PrePersist
     public void prePersist() {
@@ -85,7 +71,10 @@ public class InternProfile {
         }
         updatedAt = now;
         if (status == null) {
-            status = InternProfileStatus.DRAFT;
+            status = MentorStatus.ACTIVE;
+        }
+        if (maxInterns == null) {
+            maxInterns = 5;
         }
     }
 
@@ -93,8 +82,4 @@ public class InternProfile {
     public void preUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mentor_id")
-    private Mentor mentor;
 }

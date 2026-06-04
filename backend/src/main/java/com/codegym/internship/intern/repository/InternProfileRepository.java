@@ -36,4 +36,6 @@ public interface InternProfileRepository extends JpaRepository<InternProfile, Lo
             @Param("status") InternProfileStatus status,
             Pageable pageable
     );
+
+    long countByMentorId(Long mentorId);
 }
