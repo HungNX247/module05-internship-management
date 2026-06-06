@@ -1,11 +1,12 @@
 package com.codegym.internship.intern.dto;
 
+
 import com.codegym.internship.intern.entity.InternProfile;
-import com.codegym.internship.intern.entity.InternProfileStatus;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
@@ -20,7 +21,8 @@ public class InternProfileResponse {
     private String major;
     private String academicYear;
     private BigDecimal gpa;
-    private InternProfileStatus status;
+    private String status;
+    private String rejectReason;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -35,7 +37,8 @@ public class InternProfileResponse {
                 profile.getMajor(),
                 profile.getAcademicYear(),
                 profile.getGpa(),
-                profile.getStatus(),
+                profile.getStatus().name(),
+                profile.getRejectReason(),
                 profile.getCreatedAt(),
                 profile.getUpdatedAt()
         );

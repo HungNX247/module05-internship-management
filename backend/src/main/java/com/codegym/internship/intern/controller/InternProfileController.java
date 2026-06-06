@@ -1,10 +1,7 @@
 package com.codegym.internship.intern.controller;
 
 import com.codegym.internship.common.response.ApiResponse;
-import com.codegym.internship.intern.dto.InternProfileCreateRequest;
-import com.codegym.internship.intern.dto.InternProfilePageResponse;
-import com.codegym.internship.intern.dto.InternProfileResponse;
-import com.codegym.internship.intern.dto.InternProfileUpdateRequest;
+import com.codegym.internship.intern.dto.*;
 import com.codegym.internship.intern.entity.InternProfileStatus;
 import com.codegym.internship.intern.service.InternProfileService;
 import jakarta.validation.Valid;
@@ -55,16 +52,20 @@ public class InternProfileController {
         return ApiResponse.success("Nộp hồ sơ thực tập sinh thành công. Hồ sơ đang chờ duyệt", response);
     }
 
+    // Thêm 2 endpoint này trong class InternProfileController
     @PatchMapping("/{id}/approve")
     public ApiResponse<InternProfileResponse> approveProfile(@PathVariable Long id) {
         InternProfileResponse response = internProfileService.approveProfile(id);
-        return ApiResponse.success("Duyệt hồ sơ thực tập sinh thành công", response);
+        return ApiResponse.success("Approve intern profile successfully", response);
     }
 
     @PatchMapping("/{id}/reject")
-    public ApiResponse<InternProfileResponse> rejectProfile(@PathVariable Long id) {
-        InternProfileResponse response = internProfileService.rejectProfile(id);
-        return ApiResponse.success("Từ chối hồ sơ thực tập sinh thành công", response);
+    public ApiResponse<InternProfileResponse> rejectProfile(
+            @PathVariable Long id,
+            @Valid @RequestBody RejectProfileRequest request
+    ) {
+        InternProfileResponse response = internProfileService.rejectProfile(id, request);
+        return ApiResponse.success("Reject intern profile successfully", response);
     }
 
     @GetMapping("/{id}")
@@ -91,4 +92,5 @@ public class InternProfileController {
 
         return ApiResponse.success("Lấy danh sách hồ sơ thực tập sinh thành công", response);
     }
+
 }

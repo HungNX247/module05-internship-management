@@ -1,8 +1,6 @@
 package com.codegym.internship.intern.service;
 
-import com.codegym.internship.intern.dto.InternProfileCreateRequest;
-import com.codegym.internship.intern.dto.InternProfileResponse;
-import com.codegym.internship.intern.dto.InternProfileUpdateRequest;
+import com.codegym.internship.intern.dto.*;
 import com.codegym.internship.intern.entity.InternProfile;
 import com.codegym.internship.intern.entity.InternProfileStatus;
 import com.codegym.internship.intern.repository.InternProfileRepository;
@@ -16,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.codegym.internship.intern.dto.InternProfilePageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -74,8 +71,9 @@ public class InternProfileService {
             throw new AccessDeniedException("Bạn không có quyền cập nhật hồ sơ này");
         }
 
-        if (profile.getStatus() != InternProfileStatus.DRAFT) {
-            throw new IllegalArgumentException("Chỉ hồ sơ nháp mới được cập nhật");
+        if (profile.getStatus() != InternProfileStatus.DRAFT
+                && profile.getStatus() != InternProfileStatus.REJECTED) {
+            throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được cập nhật");
         }
 
         profile.setFullName(request.getFullName().trim());
@@ -107,22 +105,24 @@ public class InternProfileService {
     public InternProfileResponse submitProfile(Long id) {
         User currentUser = getCurrentUser();
 
-        InternProfile profile = internProfileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
-
         if (!isIntern(currentUser)) {
-            throw new AccessDeniedException("Chỉ thực tập sinh mới được nộp hồ sơ");
+            throw new AccessDeniedException("Only INTERN can submit intern profile");
         }
+
+        InternProfile profile = internProfileRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ"));
 
         if (!profile.getUser().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("Bạn không có quyền nộp hồ sơ này");
         }
 
-        if (profile.getStatus() != InternProfileStatus.DRAFT) {
-            throw new IllegalArgumentException("Chỉ hồ sơ nháp mới được nộp");
+        if (profile.getStatus() != InternProfileStatus.DRAFT
+                && profile.getStatus() != InternProfileStatus.REJECTED) {
+            throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được nộp");
         }
 
         profile.setStatus(InternProfileStatus.PENDING);
+        profile.setRejectReason(null);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
         return InternProfileResponse.fromEntity(savedProfile);
@@ -133,38 +133,40 @@ public class InternProfileService {
         User currentUser = getCurrentUser();
 
         if (!isHr(currentUser) && !isAdmin(currentUser)) {
-            throw new AccessDeniedException("Chỉ HR hoặc ADMIN mới được duyệt hồ sơ");
+            throw new AccessDeniedException("Only HR or ADMIN can approve intern profile");
         }
 
         InternProfile profile = internProfileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ"));
 
         if (profile.getStatus() != InternProfileStatus.PENDING) {
             throw new IllegalArgumentException("Chỉ hồ sơ đang chờ duyệt mới được duyệt");
         }
 
-        profile.setStatus(InternProfileStatus.SUBMITTED);
+        profile.setStatus(InternProfileStatus.APPROVED);
+        profile.setRejectReason(null);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
         return InternProfileResponse.fromEntity(savedProfile);
     }
 
     @Transactional
-    public InternProfileResponse rejectProfile(Long id) {
+    public InternProfileResponse rejectProfile(Long id, RejectProfileRequest request) {
         User currentUser = getCurrentUser();
 
         if (!isHr(currentUser) && !isAdmin(currentUser)) {
-            throw new AccessDeniedException("Chỉ HR hoặc ADMIN mới được từ chối hồ sơ");
+            throw new AccessDeniedException("Only HR or ADMIN can reject intern profile");
         }
 
         InternProfile profile = internProfileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ"));
 
         if (profile.getStatus() != InternProfileStatus.PENDING) {
             throw new IllegalArgumentException("Chỉ hồ sơ đang chờ duyệt mới được từ chối");
         }
 
-        profile.setStatus(InternProfileStatus.DRAFT);
+        profile.setStatus(InternProfileStatus.REJECTED);
+        profile.setRejectReason(request.getRejectReason().trim());
 
         InternProfile savedProfile = internProfileRepository.save(profile);
         return InternProfileResponse.fromEntity(savedProfile);

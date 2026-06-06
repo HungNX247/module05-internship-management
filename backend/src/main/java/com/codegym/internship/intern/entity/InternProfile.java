@@ -70,6 +70,10 @@ public class InternProfile {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // Thêm field này trong class InternProfile
+    @Column(name = "reject_reason", length = 500)
+    private String rejectReason;
+
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();

@@ -48,6 +48,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/interns/**").hasAnyRole("ADMIN", "HR", "INTERN")
                         .requestMatchers(HttpMethod.POST, "/api/documents/upload").hasRole("INTERN")
                         .requestMatchers(HttpMethod.GET, "/api/documents/*/download").hasAnyRole("ADMIN", "HR", "INTERN")
+                        // Thêm các matcher này trước anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/interns/*/approve").hasAnyRole("ADMIN", "HR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/interns/*/reject").hasAnyRole("ADMIN", "HR")
+
+                        .requestMatchers(HttpMethod.POST, "/api/interns/*/contract").hasAnyRole("ADMIN", "HR")
+                        .requestMatchers(HttpMethod.GET, "/api/interns/*/contract").hasAnyRole("ADMIN", "HR", "INTERN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/contracts/*/confirm").hasRole("INTERN")
+                        .requestMatchers(HttpMethod.GET, "/api/contracts/*/download").hasAnyRole("ADMIN", "HR", "INTERN")
 
                         .anyRequest().authenticated()
                 )
