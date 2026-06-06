@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: internship-management
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/internship_management?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+jwt:
+  secret: "this-is-a-demo-secret-key-for-jwt-must-be-at-least-32-characters"
+  expiration-ms: 86400000
+
+app:
+  upload:
+    document-dir: uploads/documents

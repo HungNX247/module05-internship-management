@@ -1,0 +1,44 @@
+# Frontend - Internship Management System
+
+## Công nghệ sử dụng
+- ReactJS
+- Vite
+- React Router
+- Axios
+
+## Cách chạy frontend
+
+### 1. Cài dependencies
+```bash
+npm install
+```
+
+### 2. Chạy local
+```bash
+npm run dev
+```
+
+Frontend chạy tại:
+```text
+http://localhost:5173
+```
+
+## Route hiện có
+
+| Route | Mô tả |
+|---|---|
+| /login | Trang đăng nhập |
+| /admin/dashboard | Dashboard Admin |
+| /hr/dashboard | Dashboard HR |
+| /mentor/dashboard | Dashboard Mentor |
+| /intern/dashboard | Dashboard Intern |
+
+## Ghi chú
+- PrivateRoute và RoleRoute mới là placeholder ở Sprint 0.
+- Logic kiểm tra token/role sẽ hoàn thiện ở Sprint 1.
+
+## Security backlog
+
+- **SECURITY-001**: Migrate token storage from localStorage to HttpOnly cookie + refresh token.
+- **SECURITY-002**: Add logout/token revocation endpoint integration.
+- **SECURITY-003**: CSP headers, sanitize rich-text input.
