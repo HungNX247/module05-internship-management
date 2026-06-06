@@ -27,6 +27,18 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 jwt:
   secret: "this-is-a-demo-secret-key-for-jwt-must-be-at-least-32-characters"
   expiration-ms: 86400000
@@ -34,3 +46,7 @@ jwt:
 app:
   upload:
     document-dir: uploads/documents
+
+  mail:
+    enabled: ${MAIL_ENABLED=false}
+    from: ${MAIL_FROM:no-reply@module05.local}
