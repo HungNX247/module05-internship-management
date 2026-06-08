@@ -34,14 +34,14 @@ public class MentorService {
     @Transactional
     public MentorResponse createMentor(MentorCreateRequest request) {
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng"));
 
         if (user.getRole().getCode() != Role.MENTOR) {
-            throw new IllegalArgumentException("Selected user must have MENTOR role");
+            throw new IllegalArgumentException("Người dùng được chọn phải có vai trò MENTOR");
         }
 
         if (mentorRepository.existsByUser(user)) {
-            throw new IllegalArgumentException("This user is already a mentor");
+            throw new IllegalArgumentException("Người dùng này đã là mentor");
         }
 
         Mentor mentor = new Mentor();
@@ -67,14 +67,14 @@ public class MentorService {
     @Transactional(readOnly = true)
     public MentorResponse getMentorDetail(Long id) {
         Mentor mentor = mentorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Mentor not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy mentor"));
         return MentorResponse.fromEntity(mentor);
     }
 
     @Transactional
     public MentorResponse updateMentor(Long id, MentorUpdateRequest request) {
         Mentor mentor = mentorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Mentor not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy mentor"));
 
         mentor.setDepartment(findDepartmentOrNull(request.getDepartmentId()));
         mentor.setPosition(trim(request.getPosition()));
@@ -90,7 +90,7 @@ public class MentorService {
             return null;
         }
         return departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Department not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng ban"));
     }
 
     private String trim(String value) {
@@ -100,22 +100,26 @@ public class MentorService {
     @Transactional
     public MentorResponse assignMentorToIntern(Long internProfileId, MentorAssignmentRequest request) {
         InternProfile profile = internProfileRepository.findById(internProfileId)
-                .orElseThrow(() -> new IllegalArgumentException("Intern profile not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
+
+        if (profile.getMentor() != null) {
+            throw new IllegalArgumentException("Thực tập sinh đã có mentor được gán");
+        }
 
         if (profile.getStatus() != InternProfileStatus.APPROVED) {
-            throw new IllegalArgumentException("Only APPROVED profile can be assigned to mentor");
+            throw new IllegalArgumentException("Chỉ hồ sơ đã được duyệt mới có thể gán mentor");
         }
 
         Mentor mentor = mentorRepository.findById(request.getMentorId())
-                .orElseThrow(() -> new IllegalArgumentException("Mentor not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy mentor"));
 
         if (mentor.getStatus() != MentorStatus.ACTIVE) {
-            throw new IllegalArgumentException("Only ACTIVE mentor can be assigned");
+            throw new IllegalArgumentException("Chỉ mentor đang hoạt động mới có thể được gán");
         }
 
         long currentWorkload = internProfileRepository.countByMentorId(mentor.getId());
         if (currentWorkload >= mentor.getMaxInterns()) {
-            throw new IllegalArgumentException("Mentor has reached maximum intern capacity");
+            throw new IllegalArgumentException("Mentor đã đạt số lượng thực tập sinh tối đa");
         }
 
         profile.setMentor(mentor);
