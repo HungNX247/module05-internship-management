@@ -4,6 +4,7 @@ import com.codegym.internship.intern.dto.*;
 import com.codegym.internship.intern.entity.InternProfile;
 import com.codegym.internship.intern.entity.InternProfileStatus;
 import com.codegym.internship.intern.repository.InternProfileRepository;
+import com.codegym.internship.notification.service.EmailService;
 import com.codegym.internship.user.entity.User;
 import com.codegym.internship.user.enums.Role;
 import com.codegym.internship.user.repository.UserRepository;
@@ -28,6 +29,7 @@ public class InternProfileService {
 
     private final InternProfileRepository internProfileRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Transactional
     public InternProfileResponse createProfile(InternProfileCreateRequest request) {
@@ -71,9 +73,8 @@ public class InternProfileService {
             throw new AccessDeniedException("Bạn không có quyền cập nhật hồ sơ này");
         }
 
-        if (profile.getStatus() != InternProfileStatus.DRAFT
-                && profile.getStatus() != InternProfileStatus.REJECTED) {
-            throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được cập nhật");
+        if (profile.getStatus() != InternProfileStatus.DRAFT) {
+            throw new IllegalArgumentException("Chỉ hồ sơ nháp mới được cập nhật");
         }
 
         profile.setFullName(request.getFullName().trim());
@@ -105,24 +106,22 @@ public class InternProfileService {
     public InternProfileResponse submitProfile(Long id) {
         User currentUser = getCurrentUser();
 
-        if (!isIntern(currentUser)) {
-            throw new AccessDeniedException("Only INTERN can submit intern profile");
-        }
-
         InternProfile profile = internProfileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
+
+        if (!isIntern(currentUser)) {
+            throw new AccessDeniedException("Chỉ thực tập sinh mới được nộp hồ sơ");
+        }
 
         if (!profile.getUser().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("Bạn không có quyền nộp hồ sơ này");
         }
 
-        if (profile.getStatus() != InternProfileStatus.DRAFT
-                && profile.getStatus() != InternProfileStatus.REJECTED) {
-            throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được nộp");
+        if (profile.getStatus() != InternProfileStatus.DRAFT) {
+            throw new IllegalArgumentException("Chỉ hồ sơ nháp mới được nộp");
         }
 
         profile.setStatus(InternProfileStatus.PENDING);
-        profile.setRejectReason(null);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
         return InternProfileResponse.fromEntity(savedProfile);
@@ -137,16 +136,25 @@ public class InternProfileService {
         }
 
         InternProfile profile = internProfileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ"));
+                .orElseThrow(() -> new IllegalArgumentException("Intern profile not found"));
 
         if (profile.getStatus() != InternProfileStatus.PENDING) {
-            throw new IllegalArgumentException("Chỉ hồ sơ đang chờ duyệt mới được duyệt");
+            throw new IllegalArgumentException("Only PENDING profile can be approved");
         }
 
         profile.setStatus(InternProfileStatus.APPROVED);
         profile.setRejectReason(null);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
+
+        try {
+            emailService.sendApprovalEmail(savedProfile);
+        } catch (Exception ex) {
+            // Không làm fail API approve nếu gửi email lỗi.
+            // Demo ưu tiên trạng thái hồ sơ vẫn được cập nhật đúng.
+            System.err.println("Send approval email failed: " + ex.getMessage());
+        }
+
         return InternProfileResponse.fromEntity(savedProfile);
     }
 
@@ -159,16 +167,26 @@ public class InternProfileService {
         }
 
         InternProfile profile = internProfileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ"));
+                .orElseThrow(() -> new IllegalArgumentException("Intern profile not found"));
 
         if (profile.getStatus() != InternProfileStatus.PENDING) {
-            throw new IllegalArgumentException("Chỉ hồ sơ đang chờ duyệt mới được từ chối");
+            throw new IllegalArgumentException("Only PENDING profile can be rejected");
         }
 
+        String rejectReason = request.getRejectReason().trim();
+
         profile.setStatus(InternProfileStatus.REJECTED);
-        profile.setRejectReason(request.getRejectReason().trim());
+        profile.setRejectReason(rejectReason);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
+
+        try {
+            emailService.sendRejectEmail(savedProfile, rejectReason);
+        } catch (Exception ex) {
+            // Không làm fail API reject nếu gửi email lỗi.
+            System.err.println("Send reject email failed: " + ex.getMessage());
+        }
+
         return InternProfileResponse.fromEntity(savedProfile);
     }
 
