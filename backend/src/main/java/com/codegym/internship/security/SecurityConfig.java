@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/interns/**").hasAnyRole("ADMIN", "HR", "INTERN")
                         .requestMatchers(HttpMethod.POST, "/api/documents/upload").hasRole("INTERN")
                         .requestMatchers(HttpMethod.GET, "/api/documents/*/download").hasAnyRole("ADMIN", "HR", "INTERN")
+                        .requestMatchers("/api/hr/mentors/**").hasAnyRole("ADMIN", "HR")
 
                         .anyRequest().authenticated()
                 )
