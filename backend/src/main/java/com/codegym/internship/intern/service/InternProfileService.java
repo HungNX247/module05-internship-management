@@ -73,8 +73,9 @@ public class InternProfileService {
             throw new AccessDeniedException("Bạn không có quyền cập nhật hồ sơ này");
         }
 
-        if (profile.getStatus() != InternProfileStatus.DRAFT) {
-            throw new IllegalArgumentException("Chỉ hồ sơ nháp mới được cập nhật");
+        if (profile.getStatus() != InternProfileStatus.DRAFT
+                && profile.getStatus() != InternProfileStatus.REJECTED) {
+            throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được cập nhật");
         }
 
         profile.setFullName(request.getFullName().trim());
@@ -106,22 +107,24 @@ public class InternProfileService {
     public InternProfileResponse submitProfile(Long id) {
         User currentUser = getCurrentUser();
 
-        InternProfile profile = internProfileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
-
         if (!isIntern(currentUser)) {
-            throw new AccessDeniedException("Chỉ thực tập sinh mới được nộp hồ sơ");
+            throw new AccessDeniedException("Only INTERN can submit intern profile");
         }
+
+        InternProfile profile = internProfileRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ"));
 
         if (!profile.getUser().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("Bạn không có quyền nộp hồ sơ này");
         }
 
-        if (profile.getStatus() != InternProfileStatus.DRAFT) {
-            throw new IllegalArgumentException("Chỉ hồ sơ nháp mới được nộp");
+        if (profile.getStatus() != InternProfileStatus.DRAFT
+                && profile.getStatus() != InternProfileStatus.REJECTED) {
+            throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được nộp");
         }
 
         profile.setStatus(InternProfileStatus.PENDING);
+        profile.setRejectReason(null);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
         return InternProfileResponse.fromEntity(savedProfile);

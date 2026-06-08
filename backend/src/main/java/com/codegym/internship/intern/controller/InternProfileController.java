@@ -64,7 +64,7 @@ public class InternProfileController {
             @PathVariable Long id,
             @Valid @RequestBody RejectProfileRequest request
     ) {
-        InternProfileResponse response = internProfileService.rejectProfile(id);
+        InternProfileResponse response = internProfileService.rejectProfile(id,request);
         return ApiResponse.success("Reject intern profile successfully", response);
     }
 
