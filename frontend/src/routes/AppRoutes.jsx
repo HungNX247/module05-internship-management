@@ -11,6 +11,9 @@ import UserListPage from "../pages/admin/users/UserListPage";
 import UserFormPage from "../pages/admin/users/UserFormPage";
 import HrInternListPage from "../pages/hr/interns/HrInternListPage";
 import HrInternDetailPage from "../pages/hr/interns/HrInternDetailPage";
+import MentorListPage from "../pages/hr/mentors/MentorListPage";
+import MentorAssignPage from "../pages/hr/mentors/MentorAssignPage";
+import MentorWorkloadPage from "../pages/hr/mentors/MentorWorkloadPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 
 import PrivateRoute from "./PrivateRoute";
@@ -96,6 +99,39 @@ function AppRoutes() {
           <PrivateRoute>
             <RoleRoute allowedRoles={["ADMIN", "HR"]}>
               <HrInternDetailPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/mentors"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
+              <MentorListPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/mentor-assignment"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
+              <MentorAssignPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/mentor-workload"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
+              <MentorWorkloadPage />
             </RoleRoute>
           </PrivateRoute>
         }
