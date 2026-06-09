@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import MainLayout from "../../layouts/MainLayout";
 import InternProfileForm from "../../components/intern/InternProfileForm";
 import DocumentUpload from "../../components/intern/DocumentUpload";
@@ -23,6 +23,8 @@ const STATUS_LABEL = {
   DRAFT: "Bản nháp",
   PENDING: "Chờ HR/Admin duyệt",
   SUBMITTED: "Đã duyệt",
+  APPROVED: "Đã duyệt",
+  REJECTED: "Bị từ chối",
 };
 
 function validateProfileForm(formData) {
@@ -235,8 +237,8 @@ function InternApplyPage() {
     );
   }
 
-  const currentStep = !profile ? 1 : (profile.status === "DRAFT" ? 2 : 3);
-  const isEditableProfile = !profile || profile.status === "DRAFT";
+  const currentStep = !profile ? 1 : ((profile.status === "DRAFT" || profile.status === "REJECTED") ? 2 : 3);
+  const isEditableProfile = !profile || profile.status === "DRAFT" || profile.status === "REJECTED";
 
   return (
     <MainLayout>
@@ -267,6 +269,12 @@ function InternApplyPage() {
 
         {apiError && <div className="alert alert--error">{apiError}</div>}
         {successMessage && <div className="alert alert--success">{successMessage}</div>}
+
+        {profile?.status === "REJECTED" && profile?.rejectReason && (
+          <div className="alert alert--error" style={{ marginBottom: "20px" }}>
+            ❌ <strong>Hồ sơ bị từ chối:</strong> {profile.rejectReason}. Bạn vui lòng chỉnh sửa lại thông tin và tải lại tài liệu (nếu cần), sau đó gửi lại hồ sơ.
+          </div>
+        )}
 
         <div className="intern-page-grid">
           {/* Cột 1: biểu mẫu hồ sơ */}
