@@ -1,0 +1,128 @@
+.mentor-page {
+  max-width: 1280px;
+}
+
+.mentor-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.mentor-page__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.mentor-page__subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.mentor-filter-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 18px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  box-shadow: var(--shadow-sm);
+}
+
+.mentor-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.mentor-filter-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.mentor-table-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.mentor-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.mentor-assign-intern-info {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+/* Workload badges — not in common-components.css */
+.badge--workload-full {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger-border);
+}
+
+.badge--workload-available {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid var(--color-success-border);
+}
+
+/* Warning alert — not in common-components.css */
+.alert--warning {
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+  border: 1px solid #fde68a;
+}
+
+@media (max-width: 768px) {
+  .mentor-page__header {
+    flex-direction: column;
+  }
+
+  .mentor-filter-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mentor-filter-field {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .mentor-filter-actions {
+    width: 100%;
+  }
+
+  .mentor-filter-actions .btn {
+    flex: 1;
+  }
+
+  .mentor-table-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mentor-table-card .custom-table {
+    min-width: 720px;
+  }
+}
