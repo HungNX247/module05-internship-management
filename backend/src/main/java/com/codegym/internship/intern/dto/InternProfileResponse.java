@@ -23,8 +23,18 @@ public class InternProfileResponse {
     private InternProfileStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long mentorId;
+    private String mentorName;
 
     public static InternProfileResponse fromEntity(InternProfile profile) {
+        Long mentorId = null;
+        String mentorName = null;
+
+        if (profile.getMentor() != null) {
+            mentorId = profile.getMentor().getId();
+            mentorName = profile.getMentor().getUser().getFullName();
+        }
+
         return new InternProfileResponse(
                 profile.getId(),
                 profile.getUser().getId(),
@@ -37,7 +47,9 @@ public class InternProfileResponse {
                 profile.getGpa(),
                 profile.getStatus(),
                 profile.getCreatedAt(),
-                profile.getUpdatedAt()
+                profile.getUpdatedAt(),
+                mentorId,
+                mentorName
         );
     }
 }
