@@ -1,26 +1,34 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Button } from "../../../components/common";
+import { Button, RejectReasonModal } from "../../../components/common";
 import DocumentList from "../../../components/intern/DocumentList";
 import { internApi } from "../../../api/internApi";
 import { documentApi } from "../../../api/documentApi";
+import { contractApi } from "../../../api/contractApi";
+import ContractUpload from "../../../components/contract/ContractUpload";
+import ContractInfoCard from "../../../components/contract/ContractInfoCard";
 import { isHrInternMockEnabled } from "../../../mocks/hrInternMock";
 import { getApiErrorMessage } from "../../../utils/apiErrorMessage";
 import { mapDocuments } from "../../../utils/mapDocument";
 import MainLayout from "../../../layouts/MainLayout";
 import "../../../styles/hr-intern.css";
+import "../../../styles/approval-contract.css";
 
 const STATUS_BADGE = {
   DRAFT: "badge--draft",
   SUBMITTED: "badge--submitted",
   PENDING: "badge--pending",
+  APPROVED: "badge--active",
+  REJECTED: "badge--inactive",
 };
 
 const STATUS_LABEL = {
   DRAFT: "Bản nháp",
+  SUBMITTED: "Đã nộp",
   PENDING: "Chờ duyệt",
-  SUBMITTED: "Đã duyệt",
+  APPROVED: "Đã duyệt",
+  REJECTED: "Đã từ chối",
 };
 
 function HrInternDetailPage() {
@@ -29,10 +37,23 @@ function HrInternDetailPage() {
 
   const [intern, setIntern] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [contract, setContract] = useState(null);
   const [loading, setLoading] = useState(false);
   const [reviewing, setReviewing] = useState(false);
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  async function loadContract(profileId) {
+    try {
+      const response = await contractApi.getContractByInternProfileId(profileId);
+      if (response.success) {
+        setContract(response.data);
+      }
+    } catch {
+      setContract(null);
+    }
+  }
 
   async function loadDetail() {
     try {
@@ -62,6 +83,10 @@ function HrInternDetailPage() {
       } else {
         setDocuments([]);
       }
+
+      if (profileResponse.data) {
+        await loadContract(id);
+      }
     } catch (error) {
       setIntern(null);
       setDocuments([]);
@@ -81,6 +106,7 @@ function HrInternDetailPage() {
   }, [id]);
 
   async function handleApprove() {
+    if (!window.confirm("Xác nhận duyệt hồ sơ này?")) return;
     try {
       setReviewing(true);
       setErrorMessage("");
@@ -101,19 +127,20 @@ function HrInternDetailPage() {
     }
   }
 
-  async function handleReject() {
+  async function handleReject(rejectReason) {
     try {
       setReviewing(true);
       setErrorMessage("");
       setSuccessMessage("");
 
-      const response = await internApi.rejectProfile(id);
+      const response = await internApi.rejectProfile(id, rejectReason);
       if (!response.success) {
         setErrorMessage(response.message || "Từ chối hồ sơ thất bại");
         return;
       }
 
       setIntern(response.data);
+      setRejectModalOpen(false);
       setSuccessMessage("Đã từ chối hồ sơ. Thực tập sinh có thể chỉnh sửa và nộp lại.");
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, "Từ chối hồ sơ thất bại"));
@@ -162,82 +189,101 @@ function HrInternDetailPage() {
             Đang tải chi tiết hồ sơ...
           </div>
         ) : intern ? (
-          <div className="hr-intern-detail-grid">
-            <div className="hr-intern-detail-card">
-              <div className="hr-intern-detail-card__header">
-                <h3>Thông tin hồ sơ</h3>
-                <span
-                  className={`badge ${STATUS_BADGE[intern.status] || "badge--draft"}`}
-                >
-                  {STATUS_LABEL[intern.status] || intern.status || "-"}
-                </span>
+          <>
+            <div className="hr-intern-detail-grid">
+              <div className="hr-intern-detail-card">
+                <div className="hr-intern-detail-card__header">
+                  <h3>Thông tin hồ sơ</h3>
+                  <span
+                    className={`badge ${STATUS_BADGE[intern.status] || "badge--draft"}`}
+                  >
+                    {STATUS_LABEL[intern.status] || intern.status || "-"}
+                  </span>
+                </div>
+
+                {intern.status === "PENDING" && (
+                  <div className="intern-profile-actions" style={{ marginBottom: "20px" }}>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      disabled={reviewing}
+                      onClick={handleApprove}
+                    >
+                      {reviewing ? "Đang xử lý..." : "✓ Duyệt hồ sơ"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      disabled={reviewing}
+                      onClick={() => setRejectModalOpen(true)}
+                    >
+                      ✗ Từ chối
+                    </Button>
+                  </div>
+                )}
+
+                <div className="detail-list">
+                  <div className="detail-row">
+                    <span>Họ tên</span>
+                    <strong>{intern.fullName || "-"}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Email</span>
+                    <strong>{intern.email || "-"}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Số điện thoại</span>
+                    <strong>{intern.phone || "-"}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Trường</span>
+                    <strong>{intern.school || "-"}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Ngành</span>
+                    <strong>{intern.major || "-"}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Năm học</span>
+                    <strong>{intern.academicYear || "-"}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>GPA</span>
+                    <strong>{intern.gpa ?? "-"}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Ngày tạo</span>
+                    <strong>{intern.createdAt || "-"}</strong>
+                  </div>
+                  {intern.rejectReason && (
+                    <div className="detail-row" style={{ borderBottom: "none" }}>
+                      <span style={{ color: "var(--color-danger)", fontWeight: "600" }}>Lý do từ chối</span>
+                      <strong style={{ color: "var(--color-danger)" }}>{intern.rejectReason}</strong>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {intern.status === "PENDING" && (
-                <div className="intern-profile-actions">
-                  <Button
-                    type="button"
-                    variant="primary"
-                    disabled={reviewing}
-                    onClick={handleApprove}
-                  >
-                    {reviewing ? "Đang xử lý..." : "Duyệt hồ sơ"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={reviewing}
-                    onClick={handleReject}
-                  >
-                    Từ chối
-                  </Button>
+              <div className="hr-intern-detail-card">
+                <div className="hr-intern-detail-card__header">
+                  <h3>Tài liệu đã tải lên</h3>
                 </div>
-              )}
 
-              <div className="detail-list">
-                <div className="detail-row">
-                  <span>Họ tên</span>
-                  <strong>{intern.fullName || "-"}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Email</span>
-                  <strong>{intern.email || "-"}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Số điện thoại</span>
-                  <strong>{intern.phone || "-"}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Trường</span>
-                  <strong>{intern.school || "-"}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Ngành</span>
-                  <strong>{intern.major || "-"}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Năm học</span>
-                  <strong>{intern.academicYear || "-"}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>GPA</span>
-                  <strong>{intern.gpa ?? "-"}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Ngày tạo</span>
-                  <strong>{intern.createdAt || "-"}</strong>
-                </div>
+                <DocumentList documents={documents} />
               </div>
             </div>
 
-            <div className="hr-intern-detail-card">
-              <div className="hr-intern-detail-card__header">
-                <h3>Tài liệu đã tải lên</h3>
+            {(intern.status === "APPROVED" || intern.status === "SUBMITTED" || contract) && (
+              <div className="hr-intern-detail-grid" style={{ marginTop: "24px" }}>
+                <ContractUpload
+                  internProfileId={intern.id}
+                  disabled={intern.status !== "APPROVED" && intern.status !== "SUBMITTED"}
+                  onUploaded={(uploadedContract) => setContract(uploadedContract)}
+                />
+                <ContractInfoCard contract={contract} showConfirm={false} />
               </div>
-
-              <DocumentList documents={documents} />
-            </div>
-          </div>
+            )}
+          </>
         ) : (
           <div className="empty-state">
             <div className="empty-state__icon">⚠️</div>
@@ -247,6 +293,13 @@ function HrInternDetailPage() {
             </p>
           </div>
         )}
+
+        <RejectReasonModal
+          open={rejectModalOpen}
+          loading={reviewing}
+          onClose={() => setRejectModalOpen(false)}
+          onConfirm={handleReject}
+        />
       </div>
     </MainLayout>
   );

@@ -25,7 +25,8 @@ export const internApi = {
 
   approveProfile: (id) => axiosClient.patch(`/interns/${id}/approve`),
 
-  rejectProfile: (id) => axiosClient.patch(`/interns/${id}/reject`),
+  rejectProfile: (id, rejectReason) =>
+    axiosClient.patch(`/interns/${id}/reject`, { rejectReason }),
 
   getProfileDetail: (id) => axiosClient.get(`/interns/${id}`),
 

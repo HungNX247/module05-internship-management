@@ -15,6 +15,8 @@ const STATUS_LABEL = {
   DRAFT: "Bản nháp",
   PENDING: "Chờ HR/Admin duyệt",
   SUBMITTED: "Đã duyệt",
+  APPROVED: "Đã duyệt",
+  REJECTED: "Bị từ chối",
 };
 
 function toFormData(profile) {
@@ -195,7 +197,7 @@ function InternProfilePage() {
     );
   }
 
-  const isLocked = profile?.status && profile.status !== "DRAFT";
+  const isLocked = profile?.status && profile.status !== "DRAFT" && profile.status !== "REJECTED";
 
   return (
     <MainLayout>
@@ -209,6 +211,12 @@ function InternProfilePage() {
 
         {errorMessage && <div className="alert alert--error">{errorMessage}</div>}
         {successMessage && <div className="alert alert--success">{successMessage}</div>}
+
+        {profile?.status === "REJECTED" && profile?.rejectReason && (
+          <div className="alert alert--error" style={{ marginBottom: "20px" }}>
+            ❌ <strong>Hồ sơ bị từ chối:</strong> {profile.rejectReason}. Bạn vui lòng chỉnh sửa lại thông tin và tải lại tài liệu (nếu cần), sau đó gửi lại hồ sơ.
+          </div>
+        )}
 
         {!profile || !formData ? (
           <div className="empty-state-container">

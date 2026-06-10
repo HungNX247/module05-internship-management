@@ -1,4 +1,4 @@
-﻿import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import LoginPage from "../pages/auth/LoginPage";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
@@ -12,6 +12,7 @@ import UserFormPage from "../pages/admin/users/UserFormPage";
 import HrInternListPage from "../pages/hr/interns/HrInternListPage";
 import HrInternDetailPage from "../pages/hr/interns/HrInternDetailPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
+import InternContractPage from "../pages/intern/InternContractPage";
 
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
@@ -140,6 +141,17 @@ function AppRoutes() {
           <PrivateRoute>
             <RoleRoute allowedRoles={["INTERN"]}>
               <InternProfilePage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/intern/contract"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["INTERN"]}>
+              <InternContractPage />
             </RoleRoute>
           </PrivateRoute>
         }

@@ -33,6 +33,7 @@ function Sidebar() {
       { path: "/intern/dashboard", label: "Bảng điều khiển thực tập sinh", icon: "🎓" },
       { path: "/intern/apply", label: "Nộp hồ sơ", icon: "📄" },
       { path: "/intern/profile", label: "Hồ sơ của tôi", icon: "👤" },
+      { path: "/intern/contract", label: "Hợp đồng", icon: "📝" },
       { path: "/intern/tasks", label: "Công việc của tôi", icon: "✅", comingSoon: true },
       {
         path: "/intern/reports",
