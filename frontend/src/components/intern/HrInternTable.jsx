@@ -2,14 +2,16 @@
 
 const STATUS_BADGE = {
   DRAFT: "badge--draft",
-  SUBMITTED: "badge--submitted",
   PENDING: "badge--pending",
+  APPROVED: "badge--active",
+  REJECTED: "badge--inactive",
 };
 
 const STATUS_LABEL = {
   DRAFT: "Bản nháp",
   PENDING: "Chờ duyệt",
-  SUBMITTED: "Đã duyệt",
+  APPROVED: "Đã duyệt",
+  REJECTED: "Đã từ chối",
 };
 
 function HrInternTable({ interns, onViewDetail }) {

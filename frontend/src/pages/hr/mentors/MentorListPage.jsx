@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MainLayout from "../../../layouts/MainLayout";
 import MentorTable from "../../../components/mentor/MentorTable";
 import MentorForm from "../../../components/mentor/MentorForm";
@@ -19,7 +19,7 @@ function MentorListPage() {
   const [selectedMentor, setSelectedMentor] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  async function loadMentors(filters = { keyword, status }) {
+  const loadMentors = useCallback(async (filters = {}) => {
     setLoading(true);
     setErrorMessage("");
     try {
@@ -40,11 +40,11 @@ function MentorListPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     loadMentors();
-  }, []);
+  }, [loadMentors]);
 
   function handleSearch() {
     loadMentors({ keyword, status });

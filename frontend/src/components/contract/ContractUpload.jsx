@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Button } from "../common";
 import { contractApi } from "../../api/contractApi";
 
-const MAX_CONTRACT_SIZE = 10 * 1024 * 1024;
+const MAX_CONTRACT_SIZE = 5 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx"];
 
 function getFileExtension(fileName) {
@@ -25,7 +25,7 @@ function ContractUpload({ internProfileId, disabled, onUploaded }) {
     }
 
     if (file.size > MAX_CONTRACT_SIZE) {
-      return "File hợp đồng không được vượt quá 10MB";
+      return "File hợp đồng không được vượt quá 5MB";
     }
 
     return "";
@@ -114,7 +114,7 @@ function ContractUpload({ internProfileId, disabled, onUploaded }) {
           <div className="upload-zone__text">
             {selectedFile ? "Thay đổi file hợp đồng" : "Nhấp để chọn file hợp đồng"}
           </div>
-          <div className="upload-zone__subtext">PDF, DOC, DOCX (Tối đa 10MB)</div>
+          <div className="upload-zone__subtext">PDF, DOC, DOCX (Tối đa 5MB)</div>
         </div>
 
         {selectedFile && (

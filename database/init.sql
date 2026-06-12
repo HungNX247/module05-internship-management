@@ -60,11 +60,14 @@ CREATE TABLE intern_profiles (
                                  major VARCHAR(150) NOT NULL,
                                  academic_year VARCHAR(50) NOT NULL,
                                  gpa DECIMAL(4,2),
+                                 mentor_id BIGINT,
     --    mentor_id BIGINT, -- Ẩn tạm thời cho Sprint 1, phát triển sau
                                  status VARCHAR(30) NOT NULL DEFAULT 'DRAFT',
+                                 reject_reason VARCHAR(500),
                                  created_at DATETIME,
                                  updated_at DATETIME,
                                  CONSTRAINT fk_intern_profiles_users FOREIGN KEY (user_id) REFERENCES users(id),
+                                 CONSTRAINT fk_intern_profiles_mentors FOREIGN KEY (mentor_id) REFERENCES mentors(id),
     --    CONSTRAINT fk_intern_profiles_mentors FOREIGN KEY (mentor_id) REFERENCES mentors(id), -- Ẩn tạm thời
                                  CONSTRAINT uk_intern_profiles_user UNIQUE (user_id)
 );
@@ -80,6 +83,20 @@ CREATE TABLE documents (
                            file_size BIGINT NOT NULL,
                            uploaded_at DATETIME NOT NULL,
                            CONSTRAINT fk_documents_intern_profiles FOREIGN KEY (intern_profile_id) REFERENCES intern_profiles(id)
+);
+
+CREATE TABLE contracts (
+                           id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                           intern_profile_id BIGINT NOT NULL,
+                           original_file_name VARCHAR(255) NOT NULL,
+                           stored_file_name VARCHAR(255) NOT NULL,
+                           file_path VARCHAR(500) NOT NULL,
+                           content_type VARCHAR(100),
+                           file_size BIGINT NOT NULL,
+                           status VARCHAR(30) NOT NULL DEFAULT 'UPLOADED',
+                           uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                           confirmed_at DATETIME NULL,
+                           CONSTRAINT fk_contracts_intern_profiles FOREIGN KEY (intern_profile_id) REFERENCES intern_profiles(id)
 );
 
 CREATE TABLE programs (

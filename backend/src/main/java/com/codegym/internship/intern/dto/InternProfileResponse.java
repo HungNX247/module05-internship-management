@@ -21,6 +21,7 @@ public class InternProfileResponse {
     private String academicYear;
     private BigDecimal gpa;
     private InternProfileStatus status;
+    private String rejectReason;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long mentorId;
@@ -46,6 +47,7 @@ public class InternProfileResponse {
                 profile.getAcademicYear(),
                 profile.getGpa(),
                 profile.getStatus(),
+                profile.getRejectReason(),
                 profile.getCreatedAt(),
                 profile.getUpdatedAt(),
                 mentorId,

@@ -40,8 +40,10 @@ function InternProfileContent({ pageTitle, pageSubtitle }) {
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const isDraft = !profile || profile.status === "DRAFT";
-  const formDisabled = Boolean(profile && profile.status !== "DRAFT");
+  const isDraft = !profile || profile.status === "DRAFT" || profile.status === "REJECTED";
+  const formDisabled = Boolean(
+    profile && profile.status !== "DRAFT" && profile.status !== "REJECTED"
+  );
 
   async function loadDocuments(internId) {
     if (!internId) {
@@ -186,7 +188,7 @@ function InternProfileContent({ pageTitle, pageSubtitle }) {
   }
 
   async function handleSubmitProfile() {
-    if (!profile?.id || profile.status !== "DRAFT") return;
+    if (!profile?.id || (profile.status !== "DRAFT" && profile.status !== "REJECTED")) return;
 
     try {
       setSubmitting(true);
@@ -302,7 +304,7 @@ function InternProfileContent({ pageTitle, pageSubtitle }) {
                   <Button
                     type="button"
                     variant="secondary"
-                    disabled={submitting || profile.status !== "DRAFT"}
+                    disabled={submitting || (profile.status !== "DRAFT" && profile.status !== "REJECTED")}
                     onClick={handleSubmitProfile}
                   >
                     {submitting ? "Đang nộp..." : "Nộp hồ sơ"}

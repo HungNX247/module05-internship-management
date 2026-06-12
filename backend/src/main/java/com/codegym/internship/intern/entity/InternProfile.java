@@ -67,6 +67,9 @@ public class InternProfile {
     @Column(nullable = false, length = 30)
     private InternProfileStatus status = InternProfileStatus.DRAFT;
 
+    @Column(name = "reject_reason", length = 500)
+    private String rejectReason;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

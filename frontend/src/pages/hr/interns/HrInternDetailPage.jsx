@@ -17,7 +17,6 @@ import "../../../styles/approval-contract.css";
 
 const STATUS_BADGE = {
   DRAFT: "badge--draft",
-  SUBMITTED: "badge--submitted",
   PENDING: "badge--pending",
   APPROVED: "badge--active",
   REJECTED: "badge--inactive",
@@ -25,7 +24,6 @@ const STATUS_BADGE = {
 
 const STATUS_LABEL = {
   DRAFT: "Bản nháp",
-  SUBMITTED: "Đã nộp",
   PENDING: "Chờ duyệt",
   APPROVED: "Đã duyệt",
   REJECTED: "Đã từ chối",
@@ -273,11 +271,11 @@ function HrInternDetailPage() {
               </div>
             </div>
 
-            {(intern.status === "APPROVED" || intern.status === "SUBMITTED" || contract) && (
+            {(intern.status === "APPROVED" || contract) && (
               <div className="hr-intern-detail-grid" style={{ marginTop: "24px" }}>
                 <ContractUpload
                   internProfileId={intern.id}
-                  disabled={intern.status !== "APPROVED" && intern.status !== "SUBMITTED"}
+                  disabled={intern.status !== "APPROVED"}
                   onUploaded={(uploadedContract) => setContract(uploadedContract)}
                 />
                 <ContractInfoCard contract={contract} showConfirm={false} />

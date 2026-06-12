@@ -22,7 +22,6 @@ const initialFormData = {
 const STATUS_LABEL = {
   DRAFT: "Bản nháp",
   PENDING: "Chờ HR/Admin duyệt",
-  SUBMITTED: "Đã duyệt",
   APPROVED: "Đã duyệt",
   REJECTED: "Bị từ chối",
 };
@@ -339,7 +338,7 @@ function InternApplyPage() {
               </span>
             </div>
 
-            {profile && profile.status === "DRAFT" ? (
+            {profile && (profile.status === "DRAFT" || profile.status === "REJECTED") ? (
               <DocumentUpload
                 internProfileId={profile?.id}
                 onUploaded={() => loadDocuments(profile.id)}
