@@ -3,14 +3,17 @@ package com.codegym.internship.intern.service;
 import com.codegym.internship.intern.dto.InternProfileCreateRequest;
 import com.codegym.internship.intern.dto.InternProfileResponse;
 import com.codegym.internship.intern.dto.InternProfileUpdateRequest;
+import com.codegym.internship.intern.dto.RejectProfileRequest;
 import com.codegym.internship.intern.entity.InternProfile;
 import com.codegym.internship.intern.entity.InternProfileStatus;
 import com.codegym.internship.intern.repository.InternProfileRepository;
+import com.codegym.internship.notification.service.EmailService;
 import com.codegym.internship.user.entity.User;
 import com.codegym.internship.user.enums.Role;
 import com.codegym.internship.user.repository.UserRepository;
 //import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,10 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InternProfileService {
 
     private final InternProfileRepository internProfileRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Transactional
     public InternProfileResponse createProfile(InternProfileCreateRequest request) {
@@ -74,8 +79,9 @@ public class InternProfileService {
             throw new AccessDeniedException("Bạn không có quyền cập nhật hồ sơ này");
         }
 
-        if (profile.getStatus() != InternProfileStatus.DRAFT) {
-            throw new IllegalArgumentException("Chỉ hồ sơ nháp mới được cập nhật");
+        if (profile.getStatus() != InternProfileStatus.DRAFT
+                && profile.getStatus() != InternProfileStatus.REJECTED) {
+            throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được cập nhật");
         }
 
         profile.setFullName(request.getFullName().trim());
@@ -118,11 +124,13 @@ public class InternProfileService {
             throw new AccessDeniedException("Bạn không có quyền nộp hồ sơ này");
         }
 
-        if (profile.getStatus() != InternProfileStatus.DRAFT) {
-            throw new IllegalArgumentException("Chỉ hồ sơ nháp mới được nộp");
+        if (profile.getStatus() != InternProfileStatus.DRAFT
+                && profile.getStatus() != InternProfileStatus.REJECTED) {
+            throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được nộp");
         }
 
         profile.setStatus(InternProfileStatus.PENDING);
+        profile.setRejectReason(null);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
         return InternProfileResponse.fromEntity(savedProfile);
@@ -143,14 +151,20 @@ public class InternProfileService {
             throw new IllegalArgumentException("Chỉ hồ sơ đang chờ duyệt mới được duyệt");
         }
 
-        profile.setStatus(InternProfileStatus.SUBMITTED);
+        profile.setStatus(InternProfileStatus.APPROVED);
+        profile.setRejectReason(null);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
+        try {
+            emailService.sendApprovalEmail(savedProfile);
+        } catch (Exception ex) {
+            log.warn("Send approval email failed for profile {}: {}", savedProfile.getId(), ex.getMessage());
+        }
         return InternProfileResponse.fromEntity(savedProfile);
     }
 
     @Transactional
-    public InternProfileResponse rejectProfile(Long id) {
+    public InternProfileResponse rejectProfile(Long id, RejectProfileRequest request) {
         User currentUser = getCurrentUser();
 
         if (!isHr(currentUser) && !isAdmin(currentUser)) {
@@ -164,9 +178,16 @@ public class InternProfileService {
             throw new IllegalArgumentException("Chỉ hồ sơ đang chờ duyệt mới được từ chối");
         }
 
-        profile.setStatus(InternProfileStatus.DRAFT);
+        String rejectReason = request.getRejectReason().trim();
+        profile.setStatus(InternProfileStatus.REJECTED);
+        profile.setRejectReason(rejectReason);
 
         InternProfile savedProfile = internProfileRepository.save(profile);
+        try {
+            emailService.sendRejectEmail(savedProfile, rejectReason);
+        } catch (Exception ex) {
+            log.warn("Send reject email failed for profile {}: {}", savedProfile.getId(), ex.getMessage());
+        }
         return InternProfileResponse.fromEntity(savedProfile);
     }
 

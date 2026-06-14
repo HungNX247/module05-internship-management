@@ -11,7 +11,7 @@ const STATIC_INTERNS = [
     major: "Công nghệ thông tin",
     academicYear: "Năm 4",
     gpa: 3.2,
-    status: "SUBMITTED",
+    status: "APPROVED",
     createdAt: "2026-05-18T10:00:00",
     updatedAt: "2026-05-18T10:00:00",
   },
@@ -173,7 +173,7 @@ export function updateMockIntern(id, payload) {
   }
 
   const profile = interns[idx];
-  if (profile.status !== "DRAFT") {
+  if (profile.status !== "DRAFT" && profile.status !== "REJECTED") {
     return { success: false, message: "Hồ sơ đã nộp không thể chỉnh sửa!" };
   }
 
@@ -204,6 +204,7 @@ export function submitMockIntern(id) {
   const updatedProfile = {
     ...profile,
     status: "PENDING",
+    rejectReason: null,
     updatedAt: new Date().toISOString(),
   };
 

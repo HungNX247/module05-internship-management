@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MainLayout from "../../../layouts/MainLayout";
 import { Pagination, Modal } from "../../../components/common";
 import { internApi } from "../../../api/internApi";
 import { mentorApi } from "../../../api/mentorApi";
+import { mentorAssignmentApi } from "../../../api/mentorAssignmentApi";
 import { getApiErrorMessage } from "../../../utils/apiErrorMessage";
 import "../../../styles/mentor-management.css";
 
@@ -23,7 +24,7 @@ function MentorAssignPage() {
   const [assigning, setAssigning] = useState(false);
   const [assignError, setAssignError] = useState("");
 
-  async function loadInterns(nextPage = 0) {
+  const loadInterns = useCallback(async (nextPage = 0) => {
     setLoading(true);
     setErrorMessage("");
     try {
@@ -43,9 +44,9 @@ function MentorAssignPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [size]);
 
-  async function loadMentors() {
+  const loadMentors = useCallback(async () => {
     setMentorsLoading(true);
     try {
       const res = await mentorApi.getMentors({ status: "ACTIVE" });
@@ -55,14 +56,22 @@ function MentorAssignPage() {
     } finally {
       setMentorsLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     loadInterns(0);
     loadMentors();
-  }, []);
+  }, [loadInterns, loadMentors]);
 
   function openAssignModal(intern) {
+    if (intern.mentorId) {
+      setErrorMessage(
+        `Intern ${intern.fullName} đã có mentor: ${intern.mentorName || "Không rõ"}`
+      );
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
+
     setAssignModal({ open: true, intern });
     setSelectedMentorId("");
     setAssignError("");
@@ -75,6 +84,13 @@ function MentorAssignPage() {
   }
 
   async function handleAssign() {
+    if (assignModal.intern?.mentorId) {
+      setAssignError(
+        `Intern đã có mentor: ${assignModal.intern.mentorName || "Không rõ"}`
+      );
+      return;
+    }
+
     if (!selectedMentorId) {
       setAssignError("Vui lòng chọn mentor");
       return;
@@ -82,7 +98,10 @@ function MentorAssignPage() {
     setAssigning(true);
     setAssignError("");
     try {
-      const res = await mentorApi.assignMentor(assignModal.intern.id, Number(selectedMentorId));
+      const res = await mentorAssignmentApi.assignMentor(
+        assignModal.intern.id,
+        Number(selectedMentorId)
+      );
       if (res?.success) {
         setSuccessMessage(
           `Gán mentor thành công cho intern ${assignModal.intern.fullName}`
@@ -139,28 +158,43 @@ function MentorAssignPage() {
                   <th>Trường</th>
                   <th>Chuyên ngành</th>
                   <th>GPA</th>
+                  <th>Mentor</th>
                   <th>Hành động</th>
                 </tr>
               </thead>
               <tbody>
-                {interns.map((intern) => (
-                  <tr key={intern.id}>
+                {interns.map((intern) => {
+                  const hasMentor = Boolean(intern.mentorId);
+
+                  return (
+                    <tr key={intern.id}>
                     <td style={{ fontWeight: 600 }}>{intern.fullName}</td>
                     <td>{intern.email}</td>
                     <td>{intern.school || "—"}</td>
                     <td>{intern.major || "—"}</td>
                     <td>{intern.gpa ?? "—"}</td>
                     <td>
+                      {hasMentor ? (
+                        <span className="mentor-current-name">
+                          {intern.mentorName || `#${intern.mentorId}`}
+                        </span>
+                      ) : (
+                        <span className="mentor-unassigned">Chưa gán</span>
+                      )}
+                    </td>
+                    <td>
                       <button
-                        className="btn btn-primary btn-sm"
+                        className={`btn btn-sm ${hasMentor ? "btn-secondary" : "btn-primary"}`}
                         onClick={() => openAssignModal(intern)}
-                        disabled={mentorsLoading}
+                        disabled={mentorsLoading || hasMentor}
+                        title={hasMentor ? "Intern đã có mentor" : "Gán mentor"}
                       >
-                        Gán mentor
+                        {hasMentor ? "Đã gán" : "Gán mentor"}
                       </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

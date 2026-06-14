@@ -75,6 +75,19 @@
 }
 
 /* Workload badges — not in common-components.css */
+.mentor-current-name {
+  display: inline-flex;
+  max-width: 180px;
+  color: var(--color-text);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.mentor-unassigned {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
 .badge--workload-full {
   background: var(--color-danger-bg);
   color: var(--color-danger);

@@ -14,7 +14,6 @@ import "../../styles/intern-profile.css";
 const STATUS_LABEL = {
   DRAFT: "Bản nháp",
   PENDING: "Chờ HR/Admin duyệt",
-  SUBMITTED: "Đã duyệt",
   APPROVED: "Đã duyệt",
   REJECTED: "Bị từ chối",
 };

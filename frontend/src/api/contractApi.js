@@ -16,5 +16,10 @@ export const contractApi = {
   confirmContract: (contractId) =>
     axiosClient.patch(`/contracts/${contractId}/confirm`),
 
+  downloadContract: (contractId) =>
+    axiosClient.get(`/contracts/${contractId}/download`, {
+      responseType: "blob",
+    }),
+
   getDownloadUrl: (contractId) => `/api/contracts/${contractId}/download`,
 };

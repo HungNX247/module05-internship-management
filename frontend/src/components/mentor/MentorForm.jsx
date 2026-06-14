@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Modal } from "../common";
 import { hrUserApi } from "../../api/mentorApi";
 
@@ -16,23 +16,7 @@ function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
   const [usersLoading, setUsersLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (!open) return;
-    setErrors({});
-    if (isEdit) {
-      setForm({
-        position: mentor.position || "",
-        expertise: mentor.expertise || "",
-        maxInterns: mentor.maxInterns ?? 5,
-        status: mentor.status || "ACTIVE",
-      });
-    } else {
-      setForm({ userId: "", position: "", expertise: "", maxInterns: 5, status: "ACTIVE" });
-      loadMentorUsers();
-    }
-  }, [open]);
-
-  async function loadMentorUsers() {
+  const loadMentorUsers = useCallback(async () => {
     setUsersLoading(true);
     try {
       const res = await hrUserApi.getUsers({ role: "MENTOR", size: 100 });
@@ -42,7 +26,33 @@ function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
     } finally {
       setUsersLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    setErrors({});
+    if (isEdit) {
+      setForm({
+        userId: mentor.userId || "",
+        position: mentor.position || "",
+        expertise: mentor.expertise || "",
+        maxInterns: mentor.maxInterns ?? 5,
+        status: mentor.status || "ACTIVE",
+      });
+    } else {
+      setForm({ userId: "", position: "", expertise: "", maxInterns: 5, status: "ACTIVE" });
+      loadMentorUsers();
+    }
+  }, [
+    open,
+    isEdit,
+    mentor?.userId,
+    mentor?.position,
+    mentor?.expertise,
+    mentor?.maxInterns,
+    mentor?.status,
+    loadMentorUsers,
+  ]);
 
   function handleChange(e) {
     const { name, value } = e.target;

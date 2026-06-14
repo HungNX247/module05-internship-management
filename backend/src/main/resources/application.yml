@@ -46,7 +46,8 @@ jwt:
 app:
   upload:
     document-dir: uploads/documents
+    contract-dir: uploads/contracts
 
   mail:
-    enabled: ${MAIL_ENABLED=false}
+    enabled: ${MAIL_ENABLED:false}
     from: ${MAIL_FROM:no-reply@module05.local}

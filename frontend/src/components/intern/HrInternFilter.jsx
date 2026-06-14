@@ -38,7 +38,8 @@ function HrInternFilter({
           <option value="">Tất cả trạng thái</option>
           <option value="DRAFT">Bản nháp</option>
           <option value="PENDING">Chờ duyệt</option>
-          <option value="SUBMITTED">Đã duyệt</option>
+          <option value="APPROVED">Đã duyệt</option>
+          <option value="REJECTED">Đã từ chối</option>
         </select>
       </div>
 

@@ -5,6 +5,7 @@ import com.codegym.internship.intern.dto.InternProfileCreateRequest;
 import com.codegym.internship.intern.dto.InternProfilePageResponse;
 import com.codegym.internship.intern.dto.InternProfileResponse;
 import com.codegym.internship.intern.dto.InternProfileUpdateRequest;
+import com.codegym.internship.intern.dto.RejectProfileRequest;
 import com.codegym.internship.intern.entity.InternProfileStatus;
 import com.codegym.internship.intern.service.InternProfileService;
 import jakarta.validation.Valid;
@@ -62,8 +63,11 @@ public class InternProfileController {
     }
 
     @PatchMapping("/{id}/reject")
-    public ApiResponse<InternProfileResponse> rejectProfile(@PathVariable Long id) {
-        InternProfileResponse response = internProfileService.rejectProfile(id);
+    public ApiResponse<InternProfileResponse> rejectProfile(
+            @PathVariable Long id,
+            @Valid @RequestBody RejectProfileRequest request
+    ) {
+        InternProfileResponse response = internProfileService.rejectProfile(id, request);
         return ApiResponse.success("Từ chối hồ sơ thực tập sinh thành công", response);
     }
 
