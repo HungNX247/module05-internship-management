@@ -23,7 +23,7 @@ public class MentorResponse {
         return new MentorResponse(
                 mentor.getId(),
                 mentor.getUser().getId(),
-                mentor.getUser().getFullName(),
+                mentor.getFullName(),
                 mentor.getUser().getEmail(),
                 mentor.getDepartment() == null ? null : mentor.getDepartment().getId(),
                 mentor.getDepartment() == null ? null : mentor.getDepartment().getName(),

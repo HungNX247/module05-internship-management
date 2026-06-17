@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Logs ###
+*.log
+logs/
+
+### Uploads ###
+uploads/
+
+### Node ###
+node_modules/

@@ -46,6 +46,7 @@ public class MentorService {
 
         Mentor mentor = new Mentor();
         mentor.setUser(user);
+        mentor.setFullName(user.getFullName());
         mentor.setDepartment(findDepartmentOrNull(request.getDepartmentId()));
         mentor.setPosition(trim(request.getPosition()));
         mentor.setExpertise(trim(request.getExpertise()));
@@ -139,7 +140,7 @@ public class MentorService {
 
                     return new MentorWorkloadResponse(
                             mentor.getId(),
-                            mentor.getUser().getFullName(),
+                            mentor.getFullName(),
                             mentor.getDepartment() == null ? null : mentor.getDepartment().getName(),
                             mentor.getMaxInterns(),
                             assigned,
