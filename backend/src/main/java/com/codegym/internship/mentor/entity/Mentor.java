@@ -44,6 +44,9 @@ public class Mentor {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    @Column(name = "full_name", length = 150)
+    private String fullName;
+
     @Column(length = 100)
     private String position;
 
