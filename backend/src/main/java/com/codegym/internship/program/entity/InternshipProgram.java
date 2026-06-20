@@ -30,7 +30,7 @@ public class InternshipProgram {
     private Department department;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mentor_id")
+    @JoinColumn(name = "mentor_id", nullable = false)
     private Mentor mentor;
 
     @Column(name = "start_date", nullable = false)

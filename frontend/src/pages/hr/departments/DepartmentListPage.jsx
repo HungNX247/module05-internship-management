@@ -16,6 +16,7 @@ function DepartmentListPage() {
   const [showForm, setShowForm] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [deactivatingId, setDeactivatingId] = useState(null);
 
   const departments = useMemo(() => {
     if (!status) return allDepartments;
@@ -89,6 +90,28 @@ function DepartmentListPage() {
     }
   }
 
+  async function handleDeactivate(department) {
+    const confirmed = window.confirm(`Ngừng hoạt động phòng ban "${department.name}"?`);
+    if (!confirmed) return;
+
+    setDeactivatingId(department.id);
+    setErrorMessage("");
+    try {
+      const res = await departmentApi.deleteDepartment(department.id);
+      if (res?.success) {
+        setSuccessMessage("Ngừng hoạt động phòng ban thành công");
+        loadDepartments();
+        setTimeout(() => setSuccessMessage(""), 3000);
+      } else {
+        setErrorMessage(res?.message || "Không thể ngừng hoạt động phòng ban");
+      }
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "Không thể ngừng hoạt động phòng ban"));
+    } finally {
+      setDeactivatingId(null);
+    }
+  }
+
   return (
     <MainLayout>
       <div className="department-page">
@@ -128,7 +151,12 @@ function DepartmentListPage() {
             Đang tải danh sách phòng ban...
           </div>
         ) : (
-          <DepartmentTable departments={departments} onEdit={handleOpenEdit} />
+          <DepartmentTable
+            departments={departments}
+            onEdit={handleOpenEdit}
+            onDeactivate={handleDeactivate}
+            deactivatingId={deactivatingId}
+          />
         )}
 
         <DepartmentForm

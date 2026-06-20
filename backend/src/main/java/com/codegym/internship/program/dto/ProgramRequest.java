@@ -21,6 +21,7 @@ public class ProgramRequest {
     @NotNull(message = "Phòng ban không được để trống")
     private Long departmentId;
 
+    @NotNull(message = "Mentor không được để trống")
     private Long mentorId;
 
     @NotNull(message = "Ngày bắt đầu không được để trống")

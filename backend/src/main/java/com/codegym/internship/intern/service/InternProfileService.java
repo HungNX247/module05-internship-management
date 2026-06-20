@@ -49,8 +49,11 @@ public class InternProfileService {
             throw new IllegalArgumentException("Hồ sơ thực tập sinh đã tồn tại");
         }
 
+        validateUniqueEmailAndPhone(request.getEmail(), request.getPhone(), null);
+
         InternProfile profile = new InternProfile();
         profile.setUser(currentUser);
+
         profile.setFullName(request.getFullName().trim());
         profile.setEmail(request.getEmail().trim());
         profile.setPhone(request.getPhone().trim());
@@ -83,6 +86,8 @@ public class InternProfileService {
                 && profile.getStatus() != InternProfileStatus.REJECTED) {
             throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được cập nhật");
         }
+
+        validateUniqueEmailAndPhone(request.getEmail(), request.getPhone(), profile.getId());
 
         profile.setFullName(request.getFullName().trim());
         profile.setEmail(request.getEmail().trim());
@@ -128,6 +133,8 @@ public class InternProfileService {
                 && profile.getStatus() != InternProfileStatus.REJECTED) {
             throw new IllegalArgumentException("Chỉ hồ sơ nháp hoặc bị từ chối mới được nộp");
         }
+
+        validateUniqueEmailAndPhone(profile.getEmail(), profile.getPhone(), profile.getId());
 
         profile.setStatus(InternProfileStatus.PENDING);
         profile.setRejectReason(null);
@@ -268,6 +275,25 @@ public class InternProfileService {
                 profilePage.getTotalElements(),
                 profilePage.getTotalPages()
         );
+    }
+
+    private void validateUniqueEmailAndPhone(String email, String phone, Long currentProfileId) {
+        String normalizedEmail = email.trim();
+        String normalizedPhone = phone.trim();
+
+        boolean emailExists = currentProfileId == null
+                ? internProfileRepository.existsByEmailIgnoreCase(normalizedEmail)
+                : internProfileRepository.existsByEmailIgnoreCaseAndIdNot(normalizedEmail, currentProfileId);
+        if (emailExists) {
+            throw new IllegalArgumentException("Email đã tồn tại ở hồ sơ của thực tập sinh khác");
+        }
+
+        boolean phoneExists = currentProfileId == null
+                ? internProfileRepository.existsByPhone(normalizedPhone)
+                : internProfileRepository.existsByPhoneAndIdNot(normalizedPhone, currentProfileId);
+        if (phoneExists) {
+            throw new IllegalArgumentException("Số điện thoại đã tồn tại ở hồ sơ của thực tập sinh khác");
+        }
     }
 
     private String normalizeFilter(String value) {

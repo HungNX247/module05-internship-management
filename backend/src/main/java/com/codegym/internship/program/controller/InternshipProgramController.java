@@ -34,4 +34,10 @@ public class InternshipProgramController {
                                  @Valid @RequestBody ProgramRequest request) {
         return ApiResponse.success(programService.update(id, request));
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> delete(@PathVariable Long id) {
+        programService.delete(id);
+        return ApiResponse.success(null);
+    }
 }

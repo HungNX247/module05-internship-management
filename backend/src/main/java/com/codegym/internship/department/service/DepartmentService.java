@@ -29,6 +29,10 @@ public class DepartmentService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng ban"));
     }
 
+    public DepartmentResponse findById(Long id) {
+        return DepartmentResponse.from(getEntityById(id));
+    }
+
     @Transactional
     public DepartmentResponse create(DepartmentRequest request) {
         String name = request.getName().trim();
@@ -58,6 +62,13 @@ public class DepartmentService {
         department.setDescription(request.getDescription());
         department.setStatus(parseStatus(request.getStatus()));
         return DepartmentResponse.from(departmentRepository.save(department));
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Department department = getEntityById(id);
+        department.setStatus(DepartmentStatus.INACTIVE);
+        departmentRepository.save(department);
     }
 
     private DepartmentStatus parseStatus(String status) {

@@ -1,5 +1,3 @@
-import React from "react";
-
 function ProgramStatusBadge({ status }) {
   const statusMap = {
     UPCOMING: "Sắp diễn ra",

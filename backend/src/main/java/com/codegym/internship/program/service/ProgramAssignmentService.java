@@ -72,5 +72,14 @@ public class ProgramAssignmentService {
                 .map(ProgramAssignmentResponse::from)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<ProgramAssignmentResponse> findByProgram(Long programId) {
+        InternshipProgram program = programService.getEntityById(programId);
+        return assignmentRepository.findByProgram(program)
+                .stream()
+                .map(ProgramAssignmentResponse::from)
+                .toList();
+    }
 }
 

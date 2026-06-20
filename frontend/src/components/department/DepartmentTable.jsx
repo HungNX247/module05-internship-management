@@ -1,6 +1,6 @@
 import DepartmentStatusBadge from "./DepartmentStatusBadge";
 
-function DepartmentTable({ departments, onEdit }) {
+function DepartmentTable({ departments, onEdit, onDeactivate, deactivatingId }) {
   if (!departments.length) {
     return (
       <div className="empty-state">
@@ -30,12 +30,23 @@ function DepartmentTable({ departments, onEdit }) {
                 <DepartmentStatusBadge status={department.status} />
               </td>
               <td>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => onEdit(department)}
-                >
-                  Sửa
-                </button>
+                <div className="department-table-actions">
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => onEdit(department)}
+                  >
+                    Sửa
+                  </button>
+                  {department.status === "ACTIVE" && (
+                    <button
+                      className="btn btn-secondary btn-sm department-action-danger"
+                      disabled={deactivatingId === department.id}
+                      onClick={() => onDeactivate(department)}
+                    >
+                      {deactivatingId === department.id ? "Đang xử lý..." : "Ngừng hoạt động"}
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

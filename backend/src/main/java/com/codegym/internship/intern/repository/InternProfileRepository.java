@@ -22,6 +22,14 @@ public interface InternProfileRepository extends JpaRepository<InternProfile, Lo
 
     Optional<InternProfile> findByUserId(Long userId);
 
+    boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByPhone(String phone);
+
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+
+    boolean existsByPhoneAndIdNot(String phone, Long id);
+
     @Query("""
         SELECT p
         FROM InternProfile p

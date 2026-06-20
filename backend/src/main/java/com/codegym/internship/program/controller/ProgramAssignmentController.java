@@ -14,6 +14,11 @@ public class ProgramAssignmentController {
 
     private final ProgramAssignmentService assignmentService;
 
+    @GetMapping("/{programId}/assignments")
+    public ApiResponse<?> findAssignments(@PathVariable Long programId) {
+        return ApiResponse.success(assignmentService.findByProgram(programId));
+    }
+
     @PostMapping("/{programId}/assign-interns")
     public ApiResponse<?> assignInterns(@PathVariable Long programId,
                                         @Valid @RequestBody AssignInternRequest request) {

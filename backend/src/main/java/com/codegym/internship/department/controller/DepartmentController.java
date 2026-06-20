@@ -19,6 +19,11 @@ public class DepartmentController {
         return ApiResponse.success(departmentService.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ApiResponse<?> findById(@PathVariable Long id) {
+        return ApiResponse.success(departmentService.findById(id));
+    }
+
     @PostMapping
     public ApiResponse<?> create(@Valid @RequestBody DepartmentRequest request) {
         return ApiResponse.success(departmentService.create(request));
@@ -28,5 +33,11 @@ public class DepartmentController {
     public ApiResponse<?> update(@PathVariable Long id,
                                  @Valid @RequestBody DepartmentRequest request) {
         return ApiResponse.success(departmentService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> delete(@PathVariable Long id) {
+        departmentService.delete(id);
+        return ApiResponse.success(null);
     }
 }
