@@ -1,0 +1,28 @@
+.schedule-page {
+  max-width: 1180px;
+}
+
+.schedule-page__header {
+  margin-bottom: 22px;
+}
+
+.schedule-page__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.schedule-page__subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.schedule-table-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}

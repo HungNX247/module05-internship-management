@@ -19,6 +19,8 @@ import InternContractPage from "../pages/intern/InternContractPage";
 import ProgramListPage from "../pages/hr/programs/ProgramListPage";
 import ProgramFormPage from "../pages/hr/programs/ProgramFormPage";
 import AssignInternsPage from "../pages/hr/programs/AssignInternsPage";
+import DepartmentListPage from "../pages/hr/departments/DepartmentListPage";
+import InternSchedulePage from "../pages/intern/InternSchedulePage";
 
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
@@ -186,6 +188,17 @@ function AppRoutes() {
       />
 
       <Route
+        path="/hr/departments"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
+              <DepartmentListPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
         path="/mentor/dashboard"
         element={
           <PrivateRoute>
@@ -235,6 +248,17 @@ function AppRoutes() {
           <PrivateRoute>
             <RoleRoute allowedRoles={["INTERN"]}>
               <InternContractPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/intern/schedule"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["INTERN"]}>
+              <InternSchedulePage />
             </RoleRoute>
           </PrivateRoute>
         }
