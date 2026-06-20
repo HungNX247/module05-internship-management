@@ -9,6 +9,7 @@ import com.codegym.internship.program.dto.ProgramResponse;
 import com.codegym.internship.program.entity.InternshipProgram;
 import com.codegym.internship.program.entity.ProgramStatus;
 import com.codegym.internship.program.repository.InternshipProgramRepository;
+import com.codegym.internship.program.repository.ProgramAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,9 +22,11 @@ import java.util.List;
 public class InternshipProgramService {
 
     private final InternshipProgramRepository programRepository;
+    private final ProgramAssignmentRepository assignmentRepository;
     private final DepartmentService departmentService;
     private final MentorRepository mentorRepository;
 
+    @Transactional(readOnly = true)
     public List<ProgramResponse> findAll() {
         return programRepository.findAll()
                 .stream()
@@ -31,11 +34,13 @@ public class InternshipProgramService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public ProgramResponse findById(Long id) {
         InternshipProgram program = getEntityById(id);
         return ProgramResponse.from(program, calculateStatus(program));
     }
 
+    @Transactional(readOnly = true)
     public InternshipProgram getEntityById(Long id) {
         return programRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy chương trình"));
@@ -59,13 +64,19 @@ public class InternshipProgramService {
         return ProgramResponse.from(programRepository.save(program), calculateStatus(program));
     }
 
+    @Transactional
+    public void delete(Long id) {
+        InternshipProgram program = getEntityById(id);
+        if (assignmentRepository.countByProgram(program) > 0) {
+            throw new IllegalArgumentException("Không thể xóa chương trình đã có intern được gán");
+        }
+        programRepository.delete(program);
+    }
+
     private void applyRequest(InternshipProgram program, ProgramRequest request) {
         Department department = departmentService.getEntityById(request.getDepartmentId());
-        Mentor mentor = null;
-        if (request.getMentorId() != null) {
-            mentor = mentorRepository.findById(request.getMentorId())
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy mentor"));
-        }
+        Mentor mentor = mentorRepository.findById(request.getMentorId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy mentor"));
 
         program.setName(request.getName().trim());
         program.setDescription(request.getDescription());

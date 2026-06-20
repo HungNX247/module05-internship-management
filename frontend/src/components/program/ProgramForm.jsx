@@ -1,5 +1,3 @@
-import React from "react";
-
 function ProgramForm({ formData, departments, mentors, errors, loading, onChange, onSubmit, submitLabel, onCancel }) {
   return (
     <form className="program-form" onSubmit={onSubmit} noValidate>
@@ -33,10 +31,10 @@ function ProgramForm({ formData, departments, mentors, errors, loading, onChange
         </div>
 
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label className="form-label">Mentor</label>
+          <label className="form-label">Mentor *</label>
           <select
             name="mentorId"
-            className="form-select"
+            className={`form-select ${errors.mentorId ? "form-input-error" : ""}`}
             value={formData.mentorId}
             onChange={onChange}
           >
@@ -45,6 +43,7 @@ function ProgramForm({ formData, departments, mentors, errors, loading, onChange
               <option key={mentor.id} value={mentor.id}>{mentor.fullName || mentor.name}</option>
             ))}
           </select>
+          {errors.mentorId && <div className="form-error">{errors.mentorId}</div>}
         </div>
       </div>
 

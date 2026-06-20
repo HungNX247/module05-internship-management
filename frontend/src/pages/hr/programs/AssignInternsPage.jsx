@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainLayout from "../../../layouts/MainLayout";
 import { internApi } from "../../../api/internApi";
@@ -10,26 +10,36 @@ function AssignInternsPage() {
   const navigate = useNavigate();
   const [program, setProgram] = useState(null);
   const [interns, setInterns] = useState([]);
+  const [assignedIds, setAssignedIds] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const isFinished = program?.status === "FINISHED";
+  const availableInterns = interns.filter((intern) => !assignedIds.includes(intern.id));
 
   const loadData = async () => {
     try {
       setLoading(true);
       setError("");
-      const [programRes, internRes] = await Promise.all([
+      const [programRes, internRes, assignmentRes] = await Promise.all([
         programApi.getProgramById(id),
         internApi.getInterns({ status: "APPROVED" }),
+        programAssignmentApi.getAssignments(id),
       ]);
       
       const pData = programRes.data || programRes;
       setProgram(pData.data || pData);
       
       const iData = internRes.data || internRes || {};
-      const internList = iData.items || iData.content || (Array.isArray(iData.data) ? iData.data : (Array.isArray(iData) ? iData : []));
+      const internList = iData.items || iData.content || iData.data?.items || iData.data?.content || (Array.isArray(iData.data) ? iData.data : (Array.isArray(iData) ? iData : []));
       setInterns(internList);
-    } catch (err) {
+
+      const assignmentData = assignmentRes.data || assignmentRes || {};
+      const assignments = Array.isArray(assignmentData.data) ? assignmentData.data : (Array.isArray(assignmentData) ? assignmentData : []);
+      setAssignedIds(assignments.map((assignment) => assignment.internProfileId));
+      setSelectedIds([]);
+    } catch {
       setError("Không thể tải dữ liệu chương trình hoặc thực tập sinh.");
     } finally {
       setLoading(false);
@@ -49,6 +59,10 @@ function AssignInternsPage() {
   };
 
   const handleAssign = async () => {
+    if (isFinished) {
+      setError("Chương trình đã kết thúc, không thể gán thêm thực tập sinh.");
+      return;
+    }
     if (selectedIds.length === 0) {
       setError("Vui lòng chọn ít nhất một thực tập sinh để gán.");
       return;
@@ -95,6 +109,12 @@ function AssignInternsPage() {
             </div>
           )}
 
+          {isFinished && (
+            <div className="alert alert--warning" style={{ marginBottom: "20px" }}>
+              Chương trình đã kết thúc, không thể gán thêm thực tập sinh.
+            </div>
+          )}
+
           <div style={{ marginBottom: "16px", fontWeight: 600, fontSize: "14px", color: "var(--color-text)" }}>
             Danh sách thực tập sinh đã duyệt (APPROVED):
           </div>
@@ -104,7 +124,7 @@ function AssignInternsPage() {
               <div className="loading-spinner"></div>
               <span>Đang tải thực tập sinh...</span>
             </div>
-          ) : interns.length === 0 ? (
+          ) : availableInterns.length === 0 ? (
             <div className="empty-state" style={{ padding: "32px 0" }}>
               <div className="empty-state__icon">🎓</div>
               <h3 className="empty-state__title">Không có thực tập sinh nào cần gán</h3>
@@ -112,13 +132,14 @@ function AssignInternsPage() {
             </div>
           ) : (
             <div className="intern-select-list">
-              {interns.map((intern) => (
-                <label className="intern-select-item" key={intern.id} style={{ cursor: "pointer", transition: "var(--transition)" }}>
+              {availableInterns.map((intern) => (
+                <label className="intern-select-item" key={intern.id} style={{ cursor: isFinished ? "not-allowed" : "pointer", transition: "var(--transition)", opacity: isFinished ? 0.6 : 1 }}>
                   <input
                     type="checkbox"
                     checked={selectedIds.includes(intern.id)}
+                    disabled={isFinished}
                     onChange={() => toggleIntern(intern.id)}
-                    style={{ width: "18px", height: "18px", accentColor: "var(--color-primary)", cursor: "pointer" }}
+                    style={{ width: "18px", height: "18px", accentColor: "var(--color-primary)", cursor: isFinished ? "not-allowed" : "pointer" }}
                   />
                   <div style={{ marginLeft: "12px", flex: 1 }}>
                     <div style={{ fontWeight: 600, color: "var(--color-text)" }}>{intern.fullName || intern.name}</div>
@@ -130,9 +151,9 @@ function AssignInternsPage() {
             </div>
           )}
 
-          {interns.length > 0 && !loading && (
+          {availableInterns.length > 0 && !loading && (
             <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
-              <button className="btn btn-primary" onClick={handleAssign} style={{ minWidth: "120px" }}>
+              <button className="btn btn-primary" onClick={handleAssign} disabled={isFinished} style={{ minWidth: "120px" }}>
                 Gán thực tập sinh
               </button>
               <button className="btn btn-secondary" onClick={handleCancel}>

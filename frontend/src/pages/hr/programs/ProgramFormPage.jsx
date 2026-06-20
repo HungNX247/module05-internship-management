@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainLayout from "../../../layouts/MainLayout";
 import ProgramForm from "../../../components/program/ProgramForm";
@@ -72,6 +72,7 @@ function ProgramFormPage() {
     const nextErrors = {};
     if (!formData.name.trim()) nextErrors.name = "Vui lòng nhập tên chương trình";
     if (!formData.departmentId) nextErrors.departmentId = "Vui lòng chọn phòng ban";
+    if (!formData.mentorId) nextErrors.mentorId = "Vui lòng chọn mentor";
     if (!formData.startDate || !formData.endDate) nextErrors.date = "Vui lòng chọn đủ ngày";
     if (formData.startDate && formData.endDate && formData.endDate < formData.startDate) {
       nextErrors.date = "Ngày kết thúc không được trước ngày bắt đầu";
@@ -92,7 +93,7 @@ function ProgramFormPage() {
       const payload = {
         ...formData,
         departmentId: Number(formData.departmentId),
-        mentorId: formData.mentorId ? Number(formData.mentorId) : null,
+        mentorId: Number(formData.mentorId),
         maxInterns: Number(formData.maxInterns),
       };
       if (isEdit) await programApi.updateProgram(id, payload);

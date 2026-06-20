@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "../../layouts/MainLayout";
 import { internApi } from "../../api/internApi";

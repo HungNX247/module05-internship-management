@@ -49,6 +49,8 @@ public class UserAdminService {
         String email = normalizeText(request.getEmail());
         String phone = normalizeText(request.getPhone());
 
+        validateVietnamPhone(phone);
+
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email đã tồn tại");
         }
@@ -148,6 +150,8 @@ public class UserAdminService {
     private void validateUpdate(Long id, UserUpdateRequest request) {
         String email = normalizeText(request.getEmail());
         String phone = normalizeText(request.getPhone());
+
+        validateVietnamPhone(phone);
 
         if (userRepository.existsByEmailAndIdNot(email, id)) {
             throw new IllegalArgumentException("Email đã tồn tại");
