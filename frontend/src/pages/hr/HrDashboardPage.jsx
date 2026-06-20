@@ -1,78 +1,155 @@
-﻿import MainLayout from "../../layouts/MainLayout";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import MainLayout from "../../layouts/MainLayout";
+import { internApi } from "../../api/internApi";
+import { programApi } from "../../api/programApi";
+import { mentorApi } from "../../api/mentorApi";
 import "../../styles/dashboard.css";
 
 function HrDashboardPage() {
+  const [stats, setStats] = useState({
+    interns: 0,
+    programs: 0,
+    mentors: 0,
+    activePrograms: 0,
+  });
+  const [recentPrograms, setRecentPrograms] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const [internsRes, programsRes, mentorsRes] = await Promise.all([
+          internApi.getInterns({}),
+          programApi.getPrograms({}),
+          mentorApi.getMentors({}),
+        ]);
+
+        // Extract Interns count
+        const internsData = internsRes.data || internsRes || {};
+        const internsList = internsData.items || internsData.content || (Array.isArray(internsData.data) ? internsData.data : (Array.isArray(internsData) ? internsData : []));
+        const totalInterns = internsData.totalElements || internsList.length || 0;
+
+        // Extract Programs count
+        const programsList = programsRes.data?.data || programsRes.data || [];
+        const activePrograms = programsList.filter(p => p.status === "RUNNING").length;
+
+        // Extract Mentors count
+        const mentorsList = mentorsRes.data?.data || mentorsRes.data || [];
+
+        setStats({
+          interns: totalInterns,
+          programs: programsList.length,
+          mentors: mentorsList.length,
+          activePrograms,
+        });
+
+        // Sort programs by ID in descending order to get the latest created first, and take top 5
+        const sortedPrograms = [...programsList].sort((a, b) => b.id - a.id);
+        setRecentPrograms(sortedPrograms.slice(0, 5));
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu Dashboard", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <MainLayout>
       <div className="dashboard-container">
-        <header className="dashboard-header">
+        <header className="dashboard-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
           <div>
-            <h1>Trung tâm tuyển dụng</h1>
-            <p>Chào mừng quay lại! Bạn có 3 hồ sơ thực tập mới cần xem xét.</p>
+            <h1 style={{ margin: 0, fontSize: "1.875rem", fontWeight: 700 }}>🏢 Trung tâm quản lý thực tập</h1>
+            <p style={{ color: "var(--color-text-muted)", margin: "0.25rem 0 0 0" }}>Chào mừng quay lại! Theo dõi nhanh các số liệu thực tế trên hệ thống.</p>
           </div>
-          <button className="badge badge-primary" style={{ border: 'none', cursor: 'pointer', padding: '0.5rem 1rem' }}>
-            + Đăng vị trí mới
-          </button>
+          <Link to="/hr/programs/create" className="btn btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            ➕ Thêm chương trình
+          </Link>
         </header>
 
-        <div className="stats-grid">
+        <div className="stats-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}>🎓</div>
-            <div className="stat-value">85</div>
-            <div className="stat-label">Thực tập sinh đang hoạt động</div>
-            <div className="stat-trend trend-up">↑ 8 trong tháng này</div>
+            <div className="stat-value">{loading ? "..." : stats.interns}</div>
+            <div className="stat-label">Thực tập sinh trên hệ thống</div>
+            <div className="stat-trend trend-up" style={{ color: "var(--color-success)" }}>↑ Đang hoạt động</div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#dcfce7', color: '#10b981' }}>🏢</div>
-            <div className="stat-value">24</div>
-            <div className="stat-label">Công ty đối tác</div>
-            <div className="stat-trend">Ổn định</div>
+            <div className="stat-icon" style={{ background: '#dcfce7', color: '#10b981' }}>📅</div>
+            <div className="stat-value">{loading ? "..." : stats.programs}</div>
+            <div className="stat-label">Chương trình thực tập</div>
+            <div className="stat-trend trend-up" style={{ color: "var(--color-success)" }}>↑ {stats.activePrograms} đang diễn ra</div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#fef9c3', color: '#f59e0b' }}>📋</div>
-            <div className="stat-value">12</div>
-            <div className="stat-label">Vị trí đang mở</div>
-            <div className="stat-trend trend-up">↑ 2 vị trí mới hôm nay</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#fee2e2', color: '#ef4444' }}>⌛</div>
-            <div className="stat-value">3.2 ngày</div>
-            <div className="stat-label">Thời gian tuyển trung bình</div>
-            <div className="stat-trend trend-down">↓ 0.5 ngày</div>
+            <div className="stat-icon" style={{ background: '#fef9c3', color: '#f59e0b' }}>👨‍🏫</div>
+            <div className="stat-value">{loading ? "..." : stats.mentors}</div>
+            <div className="stat-label">Mentor hướng dẫn</div>
+            <div className="stat-trend" style={{ color: "var(--color-text-muted)" }}>Ổn định</div>
           </div>
         </div>
 
-        <div className="dashboard-main-grid">
+        <div className="dashboard-main-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1.5rem", marginTop: "1.5rem" }}>
           <div className="card">
             <div className="card-header">
-              <h3>Lịch phỏng vấn sắp tới</h3>
-              <a href="#" style={{ fontSize: '0.875rem' }}>Xem lịch đầy đủ</a>
+              <h3>Chương trình thực tập mới nhất</h3>
+              <Link to="/hr/programs" style={{ fontSize: '0.875rem', fontWeight: 500, color: "var(--color-primary)" }}>Xem tất cả</Link>
             </div>
-            <div className="card-body">
-              <ul className="activity-list">
-                <li className="activity-item">
-                  <div className="activity-dot" style={{ background: '#4f46e5' }}></div>
-                  <div className="activity-content">
-                    <div className="activity-title">Phỏng vấn Tran Van C - Thực tập sinh Frontend</div>
-                    <div className="activity-time">Hôm nay, 14:00 • Google Meet</div>
-                  </div>
-                  <span className="badge badge-primary">Sắp diễn ra</span>
-                </li>
-                <li className="activity-item">
-                  <div className="activity-dot" style={{ background: '#10b981' }}></div>
-                  <div className="activity-content">
-                    <div className="activity-title">Đánh giá cuối: Le Thi D - Thực tập sinh Backend</div>
-                    <div className="activity-time">Ngày mai, 10:30 • Phòng 302</div>
-                  </div>
-                </li>
-                <li className="activity-item">
-                  <div className="activity-dot" style={{ background: '#f59e0b' }}></div>
-                  <div className="activity-content">
-                    <div className="activity-title">HR trao đổi với mentor: Hoang Anh</div>
-                    <div className="activity-time">16/05, 09:00 • Zoom</div>
-                  </div>
-                </li>
-              </ul>
+            <div className="card-body" style={{ padding: 0 }}>
+              {loading ? (
+                <div style={{ padding: "32px", textAlign: "center", color: "var(--color-text-muted)" }}>
+                  <div className="loading-spinner" style={{ margin: "0 auto 12px auto" }}></div>
+                  <span>Đang tải chương trình thực tập...</span>
+                </div>
+              ) : recentPrograms.length === 0 ? (
+                <div style={{ padding: "48px 24px", textAlign: "center", color: "var(--color-text-muted)" }}>
+                  <span>📅</span>
+                  <div style={{ marginTop: "8px", fontWeight: 500 }}>Chưa có chương trình thực tập nào</div>
+                </div>
+              ) : (
+                <ul className="activity-list" style={{ padding: "0 24px", margin: 0 }}>
+                  {recentPrograms.map((program) => {
+                    const statusColorMap = {
+                      UPCOMING: "#4f46e5",
+                      RUNNING: "#10b981",
+                      FINISHED: "#ef4444",
+                    };
+                    const statusLabelMap = {
+                      UPCOMING: "Sắp diễn ra",
+                      RUNNING: "Đang diễn ra",
+                      FINISHED: "Đã kết thúc",
+                    };
+                    return (
+                      <li key={program.id} className="activity-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 0" }}>
+                        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                          <div className="activity-dot" style={{ background: statusColorMap[program.status] || "#94a3b8" }}></div>
+                          <div>
+                            <div style={{ fontWeight: 600, color: "var(--color-text)" }}>{program.name}</div>
+                            <div style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+                              {program.departmentName} • Mentor: {program.mentorName || "Chưa gán"}
+                            </div>
+                          </div>
+                        </div>
+                        <span 
+                          className="badge" 
+                          style={{
+                            background: program.status === "RUNNING" ? "#ecfdf5" : program.status === "UPCOMING" ? "#eff6ff" : "#f1f5f9",
+                            color: program.status === "RUNNING" ? "#065f46" : program.status === "UPCOMING" ? "#1e40af" : "#475569",
+                            fontSize: "11px",
+                            padding: "4px 8px",
+                            fontWeight: 700
+                          }}
+                        >
+                          {statusLabelMap[program.status] || program.status}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
           </div>
 
@@ -82,33 +159,26 @@ function HrDashboardPage() {
             </div>
             <div className="card-body">
               <div className="quick-actions">
-                <div className="action-btn">
-                  <span>📄</span>
-                  Hợp đồng
-                </div>
-                <div className="action-btn">
+                <Link to="/hr/programs" className="action-btn">
                   <span>📅</span>
-                  Sự kiện
-                </div>
-                <div className="action-btn">
-                  <span>📈</span>
-                  Báo cáo
-                </div>
-                <div className="action-btn">
-                  <span>💡</span>
-                  Nguồn ứng viên
-                </div>
-              </div>
-              
-              <div style={{ marginTop: '2rem' }}>
-                <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Mức độ hài lòng của thực tập sinh</h4>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#10b981' }}>4.8</div>
-                  <div style={{ color: '#64748b', fontSize: '0.875rem' }}>
-                    Trên thang 5.0<br/>
-                    Dựa trên 42 đánh giá
-                  </div>
-                </div>
+                  Chương trình
+                </Link>
+                <Link to="/hr/interns" className="action-btn">
+                  <span>🎓</span>
+                  Thực tập sinh
+                </Link>
+                <Link to="/hr/mentors" className="action-btn">
+                  <span>👨‍🏫</span>
+                  Quản lý Mentor
+                </Link>
+                <Link to="/hr/mentor-assignment" className="action-btn">
+                  <span>🔗</span>
+                  Gán Mentor
+                </Link>
+                <Link to="/hr/mentor-workload" className="action-btn" style={{ gridColumn: "span 2" }}>
+                  <span>📊</span>
+                  Xem Workload Mentor
+                </Link>
               </div>
             </div>
           </div>

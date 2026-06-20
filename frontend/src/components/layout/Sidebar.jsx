@@ -11,6 +11,7 @@ function Sidebar() {
       { path: "/admin/users", label: "Quản lý người dùng", icon: "👥" },
       { path: "/admin/logs", label: "Nhật ký hệ thống", icon: "📋", comingSoon: true },
       { path: "/admin/settings", label: "Cài đặt", icon: "⚙️", comingSoon: true },
+      { path: "/hr/programs", label: "Chương trình thực tập", icon: "📅" },
       { path: "/hr/interns", label: "Thực tập sinh", icon: "🎓" },
       { path: "/hr/mentors", label: "Quản lý Mentor", icon: "👨‍🏫" },
       { path: "/hr/mentor-assignment", label: "Gán Mentor", icon: "🔗" },
@@ -18,6 +19,7 @@ function Sidebar() {
     ],
     HR: [
       { path: "/hr/dashboard", label: "Bảng điều khiển HR", icon: "🏢" },
+      { path: "/hr/programs", label: "Chương trình thực tập", icon: "📅" },
       { path: "/hr/interns", label: "Thực tập sinh", icon: "🎓" },
       { path: "/hr/mentors", label: "Quản lý Mentor", icon: "👨‍🏫" },
       { path: "/hr/mentor-assignment", label: "Gán Mentor", icon: "🔗" },
