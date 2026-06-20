@@ -16,6 +16,9 @@ import MentorAssignPage from "../pages/hr/mentors/MentorAssignPage";
 import MentorWorkloadPage from "../pages/hr/mentors/MentorWorkloadPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 import InternContractPage from "../pages/intern/InternContractPage";
+import ProgramListPage from "../pages/hr/programs/ProgramListPage";
+import ProgramFormPage from "../pages/hr/programs/ProgramFormPage";
+import AssignInternsPage from "../pages/hr/programs/AssignInternsPage";
 
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
@@ -133,6 +136,50 @@ function AppRoutes() {
           <PrivateRoute>
             <RoleRoute allowedRoles={["ADMIN", "HR"]}>
               <MentorWorkloadPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/programs"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
+              <ProgramListPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/programs/create"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
+              <ProgramFormPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/programs/:id/edit"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
+              <ProgramFormPage />
+            </RoleRoute>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hr/programs/:id/assign-interns"
+        element={
+          <PrivateRoute>
+            <RoleRoute allowedRoles={["ADMIN", "HR"]}>
+              <AssignInternsPage />
             </RoleRoute>
           </PrivateRoute>
         }
