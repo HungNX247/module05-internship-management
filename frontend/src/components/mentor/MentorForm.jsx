@@ -1,19 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 import { Modal } from "../common";
 import { hrUserApi } from "../../api/mentorApi";
+import { departmentApi } from "../../api/departmentApi";
 
 function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
   const isEdit = !!mentor;
 
   const [form, setForm] = useState({
     userId: "",
+    departmentId: "",
     position: "",
     expertise: "",
     maxInterns: 5,
     status: "ACTIVE",
   });
   const [mentorUsers, setMentorUsers] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
+  const [departmentsLoading, setDepartmentsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const loadMentorUsers = useCallback(async () => {
@@ -28,29 +32,47 @@ function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
     }
   }, []);
 
+  const loadDepartments = useCallback(async () => {
+    setDepartmentsLoading(true);
+    try {
+      const res = await departmentApi.getDepartments();
+      if (res?.success) {
+        setDepartments((res.data || []).filter((department) => department.status === "ACTIVE"));
+      }
+    } catch {
+      setDepartments([]);
+    } finally {
+      setDepartmentsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     setErrors({});
+    loadDepartments();
     if (isEdit) {
       setForm({
         userId: mentor.userId || "",
+        departmentId: mentor.departmentId || "",
         position: mentor.position || "",
         expertise: mentor.expertise || "",
         maxInterns: mentor.maxInterns ?? 5,
         status: mentor.status || "ACTIVE",
       });
     } else {
-      setForm({ userId: "", position: "", expertise: "", maxInterns: 5, status: "ACTIVE" });
+      setForm({ userId: "", departmentId: "", position: "", expertise: "", maxInterns: 5, status: "ACTIVE" });
       loadMentorUsers();
     }
   }, [
     open,
     isEdit,
     mentor?.userId,
+    mentor?.departmentId,
     mentor?.position,
     mentor?.expertise,
     mentor?.maxInterns,
     mentor?.status,
+    loadDepartments,
     loadMentorUsers,
   ]);
 
@@ -77,6 +99,7 @@ function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
     }
     const payload = {};
     if (!isEdit) payload.userId = Number(form.userId);
+    payload.departmentId = form.departmentId ? Number(form.departmentId) : null;
     if (form.position?.trim()) payload.position = form.position.trim();
     if (form.expertise?.trim()) payload.expertise = form.expertise.trim();
     payload.maxInterns = Number(form.maxInterns);
@@ -85,11 +108,7 @@ function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
   }
 
   return (
-    <Modal
-      open={open}
-      title={isEdit ? "Chỉnh sửa mentor" : "Thêm mentor mới"}
-      onClose={onClose}
-    >
+    <Modal open={open} title={isEdit ? "Chỉnh sửa mentor" : "Thêm mentor mới"} onClose={onClose}>
       <form onSubmit={handleSubmit}>
         {!isEdit && (
           <div className="form-group">
@@ -118,6 +137,29 @@ function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
             {errors.userId && <span className="form-error">{errors.userId}</span>}
           </div>
         )}
+
+        <div className="form-group">
+          <label className="form-label">Phòng ban</label>
+          {departmentsLoading ? (
+            <p style={{ fontSize: 13, color: "var(--color-text-muted)", margin: "8px 0" }}>
+              Đang tải danh sách phòng ban...
+            </p>
+          ) : (
+            <select
+              name="departmentId"
+              className="form-select"
+              value={form.departmentId}
+              onChange={handleChange}
+            >
+              <option value="">-- Chọn phòng ban --</option>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
 
         <div className="form-group">
           <label className="form-label">Vị trí</label>
@@ -163,12 +205,7 @@ function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
         {isEdit && (
           <div className="form-group">
             <label className="form-label">Trạng thái</label>
-            <select
-              name="status"
-              className="form-select"
-              value={form.status}
-              onChange={handleChange}
-            >
+            <select name="status" className="form-select" value={form.status} onChange={handleChange}>
               <option value="ACTIVE">Đang hoạt động</option>
               <option value="INACTIVE">Không hoạt động</option>
             </select>
@@ -176,12 +213,7 @@ function MentorForm({ open, mentor, onClose, onSubmit, submitting }) {
         )}
 
         <div className="mentor-form-actions">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={onClose}
-            disabled={submitting}
-          >
+          <button type="button" className="btn btn-secondary btn-sm" onClick={onClose} disabled={submitting}>
             Hủy
           </button>
           <button type="submit" className="btn btn-primary btn-sm" disabled={submitting}>
