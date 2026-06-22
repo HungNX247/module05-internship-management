@@ -63,7 +63,7 @@ public class MentorController {
             @Valid @RequestBody MentorAssignmentRequest request
     ) {
         MentorResponse response = mentorService.assignMentorToIntern(internProfileId, request);
-        return ApiResponse.success("Assign mentor successfully", response);
+        return ApiResponse.success("Assign/update mentor successfully", response);
     }
 
     @GetMapping("/workload")

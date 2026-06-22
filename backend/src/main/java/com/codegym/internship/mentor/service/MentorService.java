@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -103,14 +104,11 @@ public class MentorService {
         InternProfile profile = internProfileRepository.findById(internProfileId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ thực tập sinh"));
 
-        if (profile.getMentor() != null) {
-            throw new IllegalArgumentException("Thực tập sinh đã có mentor được gán");
-        }
-
         if (profile.getStatus() != InternProfileStatus.APPROVED) {
             throw new IllegalArgumentException("Chỉ hồ sơ đã được duyệt mới có thể gán mentor");
         }
 
+        Mentor currentMentor = profile.getMentor();
         Mentor mentor = mentorRepository.findById(request.getMentorId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy mentor"));
 
@@ -118,8 +116,13 @@ public class MentorService {
             throw new IllegalArgumentException("Chỉ mentor đang hoạt động mới có thể được gán");
         }
 
+        if (currentMentor != null && Objects.equals(currentMentor.getId(), mentor.getId())) {
+            return MentorResponse.fromEntity(mentor);
+        }
+
         long currentWorkload = internProfileRepository.countByMentorId(mentor.getId());
-        if (currentWorkload >= mentor.getMaxInterns()) {
+        int maxInterns = mentor.getMaxInterns() == null ? 0 : mentor.getMaxInterns();
+        if (currentWorkload >= maxInterns) {
             throw new IllegalArgumentException("Mentor đã đạt số lượng thực tập sinh tối đa");
         }
 
