@@ -64,16 +64,11 @@ function MentorAssignPage() {
   }, [loadInterns, loadMentors]);
 
   function openAssignModal(intern) {
-    if (intern.mentorId) {
-      setErrorMessage(
-        `Intern ${intern.fullName} đã có mentor: ${intern.mentorName || "Không rõ"}`
-      );
-      setTimeout(() => setErrorMessage(""), 3000);
-      return;
-    }
-
+    const currentMentorIsActive = mentors.some(
+      (mentor) => String(mentor.id) === String(intern.mentorId)
+    );
     setAssignModal({ open: true, intern });
-    setSelectedMentorId("");
+    setSelectedMentorId(currentMentorIsActive ? String(intern.mentorId) : "");
     setAssignError("");
   }
 
@@ -84,17 +79,19 @@ function MentorAssignPage() {
   }
 
   async function handleAssign() {
-    if (assignModal.intern?.mentorId) {
-      setAssignError(
-        `Intern đã có mentor: ${assignModal.intern.mentorName || "Không rõ"}`
-      );
-      return;
-    }
-
     if (!selectedMentorId) {
       setAssignError("Vui lòng chọn mentor");
       return;
     }
+
+    if (
+      assignModal.intern?.mentorId &&
+      String(assignModal.intern.mentorId) === selectedMentorId
+    ) {
+      setAssignError("Vui lòng chọn mentor khác mentor hiện tại");
+      return;
+    }
+
     setAssigning(true);
     setAssignError("");
     try {
@@ -104,7 +101,7 @@ function MentorAssignPage() {
       );
       if (res?.success) {
         setSuccessMessage(
-          `Gán mentor thành công cho intern ${assignModal.intern.fullName}`
+          `${assignModal.intern.mentorId ? "Đổi" : "Gán"} mentor thành công cho intern ${assignModal.intern.fullName}`
         );
         closeAssignModal();
         loadInterns(page);
@@ -120,15 +117,22 @@ function MentorAssignPage() {
   }
 
   const currentIntern = assignModal.intern;
+  const isUpdatingMentor = Boolean(currentIntern?.mentorId);
+  const submitLabel = (() => {
+    if (assigning) {
+      return isUpdatingMentor ? "Đang đổi..." : "Đang gán...";
+    }
+    return isUpdatingMentor ? "Xác nhận đổi" : "Xác nhận gán";
+  })();
 
   return (
     <MainLayout>
       <div className="mentor-page">
         <div className="mentor-page__header">
           <div>
-            <h2 className="mentor-page__title">Gán mentor cho thực tập sinh</h2>
+            <h2 className="mentor-page__title">Gán hoặc đổi mentor cho thực tập sinh</h2>
             <p className="mentor-page__subtitle">
-              Danh sách intern đã được duyệt — chọn mentor phù hợp để gán
+              Danh sách intern đã được duyệt — chọn mentor phù hợp để gán hoặc cập nhật
             </p>
           </div>
         </div>
@@ -168,31 +172,31 @@ function MentorAssignPage() {
 
                   return (
                     <tr key={intern.id}>
-                    <td style={{ fontWeight: 600 }}>{intern.fullName}</td>
-                    <td>{intern.email}</td>
-                    <td>{intern.school || "—"}</td>
-                    <td>{intern.major || "—"}</td>
-                    <td>{intern.gpa ?? "—"}</td>
-                    <td>
-                      {hasMentor ? (
-                        <span className="mentor-current-name">
-                          {intern.mentorName || `#${intern.mentorId}`}
-                        </span>
-                      ) : (
-                        <span className="mentor-unassigned">Chưa gán</span>
-                      )}
-                    </td>
-                    <td>
-                      <button
-                        className={`btn btn-sm ${hasMentor ? "btn-secondary" : "btn-primary"}`}
-                        onClick={() => openAssignModal(intern)}
-                        disabled={mentorsLoading || hasMentor}
-                        title={hasMentor ? "Intern đã có mentor" : "Gán mentor"}
-                      >
-                        {hasMentor ? "Đã gán" : "Gán mentor"}
-                      </button>
-                    </td>
-                  </tr>
+                      <td style={{ fontWeight: 600 }}>{intern.fullName}</td>
+                      <td>{intern.email}</td>
+                      <td>{intern.school || "—"}</td>
+                      <td>{intern.major || "—"}</td>
+                      <td>{intern.gpa ?? "—"}</td>
+                      <td>
+                        {hasMentor ? (
+                          <span className="mentor-current-name">
+                            {intern.mentorName || `#${intern.mentorId}`}
+                          </span>
+                        ) : (
+                          <span className="mentor-unassigned">Chưa gán</span>
+                        )}
+                      </td>
+                      <td>
+                        <button
+                          className={`btn btn-sm ${hasMentor ? "btn-secondary" : "btn-primary"}`}
+                          onClick={() => openAssignModal(intern)}
+                          disabled={mentorsLoading}
+                          title={hasMentor ? "Đổi mentor" : "Gán mentor"}
+                        >
+                          {hasMentor ? "Đổi mentor" : "Gán mentor"}
+                        </button>
+                      </td>
+                    </tr>
                   );
                 })}
               </tbody>
@@ -210,7 +214,7 @@ function MentorAssignPage() {
 
         <Modal
           open={assignModal.open}
-          title="Gán mentor"
+          title={isUpdatingMentor ? "Đổi mentor" : "Gán mentor"}
           onClose={closeAssignModal}
         >
           {currentIntern && (
@@ -223,9 +227,16 @@ function MentorAssignPage() {
                   </span>
                 )}
               </p>
+              {isUpdatingMentor && (
+                <p className="mentor-assign-intern-info">
+                  Mentor hiện tại: <strong>{currentIntern.mentorName || `#${currentIntern.mentorId}`}</strong>
+                </p>
+              )}
 
               <div className="form-group">
-                <label className="form-label">Chọn mentor</label>
+                <label className="form-label">
+                  {isUpdatingMentor ? "Chọn mentor mới" : "Chọn mentor"}
+                </label>
                 {mentorsLoading ? (
                   <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>
                     Đang tải danh sách mentor...
@@ -244,13 +255,19 @@ function MentorAssignPage() {
                     }}
                   >
                     <option value="">-- Chọn mentor --</option>
-                    {mentors.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.fullName}
-                        {m.expertise ? ` — ${m.expertise}` : ""}
-                        {m.maxInterns ? ` (tối đa ${m.maxInterns} intern)` : ""}
-                      </option>
-                    ))}
+                    {mentors.map((m) => {
+                      const isCurrentMentor =
+                        currentIntern.mentorId && String(m.id) === String(currentIntern.mentorId);
+
+                      return (
+                        <option key={m.id} value={m.id} disabled={isCurrentMentor}>
+                          {m.fullName}
+                          {isCurrentMentor ? " (hiện tại)" : ""}
+                          {m.expertise ? ` — ${m.expertise}` : ""}
+                          {m.maxInterns ? ` (tối đa ${m.maxInterns} intern)` : ""}
+                        </option>
+                      );
+                    })}
                   </select>
                 )}
                 {assignError && <span className="form-error">{assignError}</span>}
@@ -269,7 +286,7 @@ function MentorAssignPage() {
                   onClick={handleAssign}
                   disabled={assigning || mentors.length === 0}
                 >
-                  {assigning ? "Đang gán..." : "Xác nhận gán"}
+                  {submitLabel}
                 </button>
               </div>
             </div>
